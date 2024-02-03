@@ -1,6 +1,8 @@
 ﻿using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
 using Antlr4.Runtime.Tree.Pattern;
+using JackInterpreter;
+using System.Reflection.Emit;
 
 internal class Program
 {
@@ -16,7 +18,13 @@ internal class Program
 
         JackParser parser = new JackParser(tokens);
         IParseTree tree = parser.classDeclaration();
+        ParseTreeWalker walker = new();
 
-        Console.WriteLine(tree.ToStringTree(parser));
+
+        var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(
+            new System.Reflection.AssemblyName("Jack"), AssemblyBuilderAccess.Run);
+
+        EmitILJackListener listener = new EmitILJackListener(Path.GetFileNameWithoutExtension(inputFile), parser, assemblyBuilder);
+        walker.Walk(listener, tree);
     }
 }

@@ -5,7 +5,7 @@ import JackLexerRules;
 // PROGRAM STRUCTURE
 
 classDeclaration:
-	'class' ID '{' classVarDec* subroutineDec* '}';
+	'class' className '{' classVarDec* subroutineDec* '}';
 
 classVarDec: ('static' | 'field') type varName (',' varName)* ';';
 
