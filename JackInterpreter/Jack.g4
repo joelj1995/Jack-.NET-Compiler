@@ -64,7 +64,7 @@ expression: term (op term)*;
 term:
 	INTCONST
 	| STRINGCONST
-	| KEYWORDCONST
+	| keywordConst
 	| varName
 	| varName '[' expression ']'
 	| subroutineCall
@@ -79,4 +79,4 @@ expressionList: (expression (',' expression)*)?;
 
 op: '+' | '-' | '*' | '/' | '&' | '|' | '<' | '>' | '=';
 unaryOp: '-' | '~';
-KEYWORDCONST: 'true' | 'false' | 'null' | 'this';
+keywordConst: 'true' | 'false' | 'null' | 'this';
