@@ -11,12 +11,17 @@ classVarDec: ('static' | 'field') type varName (',' varName)* ';';
 
 type: 'int' | 'char' | 'boolean' | className;
 
-subroutineDec: ('constructor' | 'function' | 'method') (
-		'void'
-		| type
-	) subroutineName '(' parameterList ')' subroutineBody;
+subroutineDec:
+	subroutineDecModifier ('void' | type) subroutineName '(' parameterList ')' subroutineBody;
 
-parameterList: ((type varName) (',' type varName)*)?;
+subroutineDecModifier:
+	'constructor'	# Constructor
+	| 'function'	# Function
+	| 'method'		# Method;
+
+parameterList: ((parameter) (',' parameter)*)?;
+
+parameter: type varName;
 
 subroutineBody: '{' varDec* statements '}';
 
@@ -33,11 +38,11 @@ varName: ID;
 statements: statement*;
 
 statement:
-	letStatement
-	| ifStatement
-	| whileStatement
-	| doStatement
-	| returnStatement;
+	letStatement		# StatementForLet
+	| ifStatement		# StatementForIf
+	| whileStatement	# StatementForWhile
+	| doStatement		# StatementForDo
+	| returnStatement	# StatementForReturn;
 
 letStatement:
 	'let' varName ('[' expression ']')? '=' expression ';';

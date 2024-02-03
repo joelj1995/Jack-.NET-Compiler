@@ -24,7 +24,9 @@ internal class Program
         var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(
             new System.Reflection.AssemblyName("Jack"), AssemblyBuilderAccess.Run);
 
-        EmitILJackListener listener = new EmitILJackListener(Path.GetFileNameWithoutExtension(inputFile), parser, assemblyBuilder);
+        EmitILJackListener listener = new EmitILJackListener(Path.GetFileNameWithoutExtension(inputFile), parser, tokens, assemblyBuilder);
         walker.Walk(listener, tree);
+
+        listener.RootClassType!.GetMethod("main")!.Invoke(null, null);
     }
 }
