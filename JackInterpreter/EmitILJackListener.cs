@@ -16,21 +16,26 @@ namespace JackInterpreter
         {
             this.parser = jackParser;
             this.tokens = tokens;
-            this.writer = new JackILWriter(outputStream);
+            this.outputStream = outputStream;
         }
 
         public override void EnterClassDeclaration(JackParser.ClassDeclarationContext context)
         {
-            writer.WriteILHeader();
+            string className = context.className().ID().ToString() ?? throw new NullReferenceException("Class Name Null");
+            outputStream.WriteLine(ILSnippets.RuntimeReference);
+            outputStream.WriteLine($".assembly {jackAssemblyName} {{}}");
+            outputStream.WriteLine($".class public auto ansi beforefieldinit {jackAssemblyName}.{className} extends [System.Runtime]System.Object");
+            outputStream.WriteLine("{");
         }
 
         public override void ExitClassDeclaration([NotNull] ClassDeclarationContext context)
         {
-            writer.WriteILFooter();
+            outputStream.WriteLine("}");
         }
 
         private readonly JackParser parser;
         private readonly CommonTokenStream tokens;
-        private readonly JackILWriter writer;
+        private readonly StreamWriter outputStream;
+        private const string jackAssemblyName = "JackExecutable";
     }
 }
