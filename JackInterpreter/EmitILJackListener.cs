@@ -21,6 +21,7 @@ namespace JackInterpreter
 
         public override void EnterClassDeclaration(JackParser.ClassDeclarationContext context)
         {
+            // TODO: Really this header just be written somewhere else for cases where we're handling multiple Jack source filesf
             string className = context.className().ID().ToString() ?? throw new NullReferenceException("Class Name Null");
             outputStream.WriteLine(ILSnippets.RuntimeReference);
             outputStream.WriteLine($".assembly {jackAssemblyName} {{}}");
@@ -31,6 +32,31 @@ namespace JackInterpreter
         public override void ExitClassDeclaration([NotNull] ClassDeclarationContext context)
         {
             outputStream.WriteLine("}");
+        }
+
+        public override void EnterSubroutineDec([NotNull] SubroutineDecContext context)
+        {
+            string subroutineName = context.subroutineName().ID().ToString() ?? throw new NullReferenceException("Subroutine Name Null");
+            string modifier = context.subroutineDecModifier() is FunctionContext ctx ? "static" : "";
+            outputStream.WriteLine($".method {modifier} public void {subroutineName}() cil managed");
+            outputStream.WriteLine("{");
+            if (subroutineName.Equals("main"))
+                outputStream.WriteLine($".entrypoint");
+            outputStream.WriteLine($".maxstack 256");
+        }
+
+        public override void ExitSubroutineDec([NotNull] SubroutineDecContext context)
+        {
+            outputStream.WriteLine("}");
+        }
+
+        public override void EnterSubroutineBody([NotNull] SubroutineBodyContext context)
+        {
+        }
+
+        public override void ExitSubroutineBody([NotNull] SubroutineBodyContext context)
+        {
+            outputStream.WriteLine("ret");
         }
 
         private readonly JackParser parser;
