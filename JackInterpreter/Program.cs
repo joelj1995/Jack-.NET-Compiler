@@ -28,7 +28,5 @@ internal class Program
         walker.Walk(listener, tree);
 
         listener.RootClassType!.GetMethod("main")!.Invoke(null, null);
-
-        EmitILJackVisitor visitor = new EmitILJackVisitor();
     }
 }
