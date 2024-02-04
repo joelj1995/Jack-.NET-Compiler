@@ -131,6 +131,16 @@ namespace JackInterpreter
             }
         }
 
+        public override void ExitUnaryOpMinus([NotNull] UnaryOpMinusContext context)
+        {
+            outputStream.WriteLine("neg");
+        }
+
+        public override void ExitUnaryOpNot([NotNull] UnaryOpNotContext context)
+        {
+            outputStream.WriteLine("not");
+        }
+
         private readonly JackParser parser;
         private readonly CommonTokenStream tokens;
         private readonly StreamWriter outputStream;

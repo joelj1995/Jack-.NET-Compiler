@@ -92,7 +92,7 @@ op:
 	| '>'	# OpGreaterThan
 	| '='	# OpEqual;
 
-unaryOp: '-' # UnaryOpMinux | '~' # UnaryOpNot;
+unaryOp: '-' # UnaryOpMinus | '~' # UnaryOpNot;
 
 keywordConst:
 	'true'		# ConstTrue
