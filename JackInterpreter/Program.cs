@@ -23,8 +23,17 @@ internal class Program
             IParseTree tree = parser.classDeclaration();
             ParseTreeWalker walker = new();
 
-            EmitILJackListener listener = new EmitILJackListener(Path.GetFileNameWithoutExtension(inputFilePath), parser, tokens, outputStream);
-            walker.Walk(listener, tree);
+            SymbolTable symbolTable = new SymbolTable();
+            EmitILJackListener emitILJackListener = new EmitILJackListener(
+                Path.GetFileNameWithoutExtension(inputFilePath), 
+                parser, 
+                tokens, 
+                outputStream,
+                symbolTable);
+            PopulateSymbolTableJackListener symbolTableListener = new PopulateSymbolTableJackListener(symbolTable);
+
+            //walker.Walk(symbolTableListener, tree);
+            walker.Walk(emitILJackListener, tree);
         }
     }
 }

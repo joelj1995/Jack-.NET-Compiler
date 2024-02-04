@@ -72,8 +72,8 @@ term:
 	| unaryOp term;
 
 subroutineCall:
-	subroutineName '(' expressionList ')'
-	| (className | varName) '.' subroutineName '(' expressionList ')';
+	subroutineName '(' expressionList ')'								# ThisMethod
+	| (className | varName) '.' subroutineName '(' expressionList ')'	# ThatMethod;
 
 expressionList: (expression (',' expression)*)?;
 
