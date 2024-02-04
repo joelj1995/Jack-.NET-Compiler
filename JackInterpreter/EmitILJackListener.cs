@@ -23,9 +23,9 @@ namespace JackInterpreter
         {
             // TODO: Really this header just be written somewhere else for cases where we're handling multiple Jack source filesf
             string className = context.className().ID().ToString() ?? throw new NullReferenceException("Class Name Null");
-            outputStream.WriteLine(ILSnippets.RuntimeReference);
+            outputStream.WriteLine(".assembly extern mscorlib {}");
             outputStream.WriteLine($".assembly {jackAssemblyName} {{}}");
-            outputStream.WriteLine($".class public auto ansi beforefieldinit {jackAssemblyName}.{className} extends [System.Runtime]System.Object");
+            outputStream.WriteLine($".class public auto ansi beforefieldinit {jackAssemblyName}.{className} extends [mscorlib]System.Object");
             outputStream.WriteLine("{");
         }
 
