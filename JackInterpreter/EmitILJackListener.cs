@@ -63,6 +63,26 @@ namespace JackInterpreter
             outputStream.WriteLine("ret");
         }
 
+        public override void EnterIfStatement([NotNull] IfStatementContext context)
+        {
+            
+        }
+
+        public override void EnterIfBody([NotNull] IfBodyContext context)
+        {
+            var nextCookie = ifCookie++;
+            intCookieStack.Push(nextCookie);
+            outputStream.WriteLine($"brfalse IF_EXIT_{nextCookie}");
+        }
+
+        public override void ExitIfStatement([NotNull] IfStatementContext context)
+        {
+            var lastCookie = intCookieStack.Pop();
+            outputStream.WriteLine($"IF_EXIT_{lastCookie}:");
+        }
+
+
+
         public override void EnterThatMethod([NotNull] ThatMethodContext context)
         {
 
@@ -146,5 +166,8 @@ namespace JackInterpreter
         private readonly StreamWriter outputStream;
         private const string jackAssemblyName = "JackExecutable";
         private readonly SymbolTable symbolTable;
+
+        private int ifCookie = 0;
+        private Stack<int> intCookieStack = new();
     }
 }

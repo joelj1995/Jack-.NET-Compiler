@@ -8,7 +8,7 @@ internal class Program
 {
     private static void Main(string[] args)
     {
-        var inputFilePath = @"C:\Users\colte\Downloads\project_11\Seven\Main.jack";
+        var inputFilePath = @"C:\Users\colte\Downloads\project_11\Seven\Main2.jack";
         var outputFilePath = @"C:\Jack\Jack.il";
 
         using (var outputFile = File.Create(outputFilePath))

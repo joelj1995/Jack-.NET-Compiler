@@ -52,9 +52,12 @@ letStatement:
 	'let' varName ('[' expression ']')? '=' expression ';';
 
 ifStatement:
-	'if' '(' expression ')' '{' statements '}' (
-		'else' '{' statements '}'
+	'if' '(' expression ')' '{' ifBody '}' (
+		'else' '{' elseBody '}'
 	)?;
+
+ifBody: statements;
+elseBody: statements;
 
 whileStatement: 'while' '(' expression ')' '{' statements '}';
 
