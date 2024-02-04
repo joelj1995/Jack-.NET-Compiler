@@ -72,7 +72,19 @@ namespace JackInterpreter
         {
             var nextCookie = ifCookie++;
             intCookieStack.Push(nextCookie);
-            outputStream.WriteLine($"brfalse IF_EXIT_{nextCookie}");
+            outputStream.WriteLine($"brfalse IF_ELSE_{nextCookie}");
+        }
+
+        public override void ExitIfBody([NotNull] IfBodyContext context)
+        { 
+            var lastCookie = intCookieStack.Peek();
+            outputStream.WriteLine($"br IF_EXIT_{lastCookie}");
+            outputStream.WriteLine($"IF_ELSE_{lastCookie}:");
+        }
+
+        public override void EnterElseBody([NotNull] ElseBodyContext context)
+        {
+            base.EnterElseBody(context);
         }
 
         public override void ExitIfStatement([NotNull] IfStatementContext context)
