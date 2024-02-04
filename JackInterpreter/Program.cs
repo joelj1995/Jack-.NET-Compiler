@@ -8,25 +8,23 @@ internal class Program
 {
     private static void Main(string[] args)
     {
-        var inputFile = @"C:\Users\colte\Downloads\project_11\Seven\Main.jack";
+        var inputFilePath = @"C:\Users\colte\Downloads\project_11\Seven\Main.jack";
+        var outputFilePath = @"C:\Jack\Jack.il";
 
-        var inputStream = File.OpenRead(inputFile);
+        using (var outputFile = File.Create(outputFilePath))
+        using (var inputFile = File.OpenRead(inputFilePath))
+        using (var outputStream = new StreamWriter(outputFile))
+        {
+            AntlrInputStream antlrInputStream = new AntlrInputStream(inputFile);
+            JackLexer lexer = new JackLexer(antlrInputStream);
+            CommonTokenStream tokens = new CommonTokenStream(lexer);
 
-        AntlrInputStream antlrInputStream = new AntlrInputStream(inputStream);
-        JackLexer lexer = new JackLexer(antlrInputStream);
-        CommonTokenStream tokens = new CommonTokenStream(lexer);
+            JackParser parser = new JackParser(tokens);
+            IParseTree tree = parser.classDeclaration();
+            ParseTreeWalker walker = new();
 
-        JackParser parser = new JackParser(tokens);
-        IParseTree tree = parser.classDeclaration();
-        ParseTreeWalker walker = new();
-
-
-        var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(
-            new System.Reflection.AssemblyName("Jack"), AssemblyBuilderAccess.Run);
-
-        EmitILJackListener listener = new EmitILJackListener(Path.GetFileNameWithoutExtension(inputFile), parser, tokens, assemblyBuilder);
-        walker.Walk(listener, tree);
-
-        listener.RootClassType!.GetMethod("main")!.Invoke(null, null);
+            EmitILJackListener listener = new EmitILJackListener(Path.GetFileNameWithoutExtension(inputFilePath), parser, tokens, outputStream);
+            walker.Walk(listener, tree);
+        }
     }
 }
