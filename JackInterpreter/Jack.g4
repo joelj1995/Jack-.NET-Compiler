@@ -9,7 +9,11 @@ classDeclaration:
 
 classVarDec: ('static' | 'field') type varName (',' varName)* ';';
 
-type: 'int' | 'char' | 'boolean' | className;
+type:
+	'int'		# TypeInt
+	| 'char'	# TypeChar
+	| 'boolean'	# TypeBool
+	| className	# TypeClass;
 
 subroutineDec:
 	subroutineDecModifier ('void' | type) subroutineName '(' parameterList ')' subroutineBody;
@@ -60,16 +64,16 @@ returnStatement: 'return' expression? ';';
 
 // EXPRESSIONS
 
-expression: term (op term)*;
+expression: term (binaryOp)*;
+binaryOp: op term;
 term:
-	INTCONST
-	| STRINGCONST
-	| keywordConst
-	| varName
-	| varName '[' expression ']'
-	| subroutineCall
-	| '(' expression ')'
-	| unaryOp term;
+	litteralConst					# TermConst
+	| keywordConst					# TermKeywordConst
+	| varName						# TermVarName
+	| varName '[' expression ']'	# TermArrayIndex
+	| subroutineCall				# TermSubroutineCalls
+	| '(' expression ')'			# TermParen
+	| unaryOp term					# TermUnary;
 
 subroutineCall:
 	subroutineName '(' expressionList ')'								# ThisMethod
@@ -77,6 +81,23 @@ subroutineCall:
 
 expressionList: (expression (',' expression)*)?;
 
-op: '+' | '-' | '*' | '/' | '&' | '|' | '<' | '>' | '=';
-unaryOp: '-' | '~';
-keywordConst: 'true' | 'false' | 'null' | 'this';
+op:
+	'+'		# OpPlus
+	| '-'	# OpMinus
+	| '*'	# OpTimes
+	| '/'	# OpDivide
+	| '&'	# OpAnd
+	| '|'	# OpOr
+	| '<'	# OpLessThan
+	| '>'	# OpGreaterThan
+	| '='	# OpEqual;
+
+unaryOp: '-' # UnaryOpMinux | '~' # UnaryOpNot;
+
+keywordConst:
+	'true'		# ConstTrue
+	| 'false'	# ConstFalse
+	| 'null'	# ConstNull
+	| 'this'	# ConstThis;
+
+litteralConst: INTCONST # ConstInt | STRINGCONST # ConstString;

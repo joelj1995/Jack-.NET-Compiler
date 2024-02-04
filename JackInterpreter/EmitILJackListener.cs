@@ -79,12 +79,34 @@ namespace JackInterpreter
                 switch (rhs)
                 {
                     case "printInt":
-                        outputStream.WriteLine("ldc.i4.1");
                         outputStream.WriteLine("call void [mscorlib]System.Console::Write(int32)");
                         break;
                     default:
                         throw new NotImplementedException(rhs);
                 }
+            }
+        }
+
+        public override void EnterConstInt([NotNull] ConstIntContext context)
+        {
+            var value = context.INTCONST().ToString();
+            outputStream.WriteLine($"ldc.i4.{value}");
+        }
+
+        public override void ExitBinaryOp([NotNull] BinaryOpContext context)
+        {
+            var text = context.GetText();
+            var opToken = context.op().GetText();
+            switch (opToken)
+            {
+                case "+":
+                    outputStream.WriteLine("add.ovf");
+                    break;
+                case "*":
+                    outputStream.WriteLine("mul.ovf");
+                    break;
+                default:
+                    throw new NotImplementedException(opToken);
             }
         }
 
