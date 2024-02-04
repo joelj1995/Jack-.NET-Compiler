@@ -102,8 +102,29 @@ namespace JackInterpreter
                 case "+":
                     outputStream.WriteLine("add.ovf");
                     break;
+                case "-":
+                    outputStream.WriteLine("sub.ovf");
+                    break;
                 case "*":
                     outputStream.WriteLine("mul.ovf");
+                    break;
+                case "/":
+                    outputStream.WriteLine("div.ovf");
+                    break;
+                case "&":
+                    outputStream.WriteLine("and");
+                    break;
+                case "|":
+                    outputStream.WriteLine("or");
+                    break;
+                case "<":
+                    outputStream.WriteLine("clt");
+                    break;
+                case ">":
+                    outputStream.WriteLine("cgt");
+                    break;
+                case "=":
+                    outputStream.WriteLine("ceq");
                     break;
                 default:
                     throw new NotImplementedException(opToken);
