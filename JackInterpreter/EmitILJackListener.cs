@@ -12,17 +12,16 @@ namespace JackInterpreter
 {
     internal class EmitILJackListener : JackBaseListener
     {
-        public EmitILJackListener(StreamWriter outputStream, SymbolTable symbolTable) : base()
+        public EmitILJackListener(StreamWriter outputStream, SubroutineSymbolTable subroutineSymbolTable) : base()
         {
             this.outputStream = outputStream;
-            this.symbolTable = symbolTable;
+            this.subroutineSymbolTable = subroutineSymbolTable;
         }
 
         public override void EnterClassDeclaration(JackParser.ClassDeclarationContext context)
         {
             string className = context.className().ID().ToString() ?? 
                 throw new NullReferenceException("Class Name Null");
-            
             outputStream.WriteLine($".class public auto ansi beforefieldinit {JackDefinitions.JackAssemblyName}.{className} extends [mscorlib]System.Object");
             outputStream.WriteLine("{");
         }
@@ -170,7 +169,8 @@ namespace JackInterpreter
         }
 
         private readonly StreamWriter outputStream;
-        private readonly SymbolTable symbolTable;
+        private readonly DataSymbolTable symbolTable = new DataSymbolTable();
+        private readonly SubroutineSymbolTable subroutineSymbolTable;
 
         private int ifCookie = 0;
         private Stack<int> intCookieStack = new();

@@ -11,7 +11,8 @@ internal class Program
         var inputPath = @"C:\Users\colte\Downloads\project_09\Square";
         var outputFilePath = @"C:\Jack\Jack.il";
 
-        var symbolTable = new SymbolTable();
+        var symbolTable = new DataSymbolTable();
+        var subroutineSymbolTable = new SubroutineSymbolTable();
 
         var walker = new ParseTreeWalker();
         var sourceTrees = new List<IParseTree>();
@@ -22,7 +23,7 @@ internal class Program
 
             var inputFile = File.OpenRead(inputFilePath);
 
-            var symbolTableListener = new PopulateSymbolTableJackListener(symbolTable);
+            var symbolTableListener = new PopulateSubroutineTableJackListener(subroutineSymbolTable);
             AntlrInputStream antlrInputStream = new AntlrInputStream(inputFile);
             JackLexer lexer = new JackLexer(antlrInputStream);
             CommonTokenStream tokens = new CommonTokenStream(lexer);
@@ -43,9 +44,8 @@ internal class Program
             foreach (var tree in sourceTrees)
             {
                 EmitILJackListener emitILJackListener = new EmitILJackListener(
-                outputStream,
-                symbolTable);
-                PopulateSymbolTableJackListener symbolTableListener = new PopulateSymbolTableJackListener(symbolTable);
+                    outputStream,
+                    subroutineSymbolTable);
                 walker.Walk(emitILJackListener, tree);
             }
             

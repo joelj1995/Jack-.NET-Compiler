@@ -7,7 +7,7 @@ using static JackInterpreter.JackDefinitions;
 
 namespace JackInterpreter
 {
-    internal class SymbolTable
+    internal class DataSymbolTable
     {
         public void Define(string name, string type, SymbolKind kind)
         {
