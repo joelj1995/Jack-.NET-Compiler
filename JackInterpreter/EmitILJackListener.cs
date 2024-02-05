@@ -97,7 +97,7 @@ namespace JackInterpreter
 
         public override void EnterThatMethod([NotNull] ThatMethodContext context)
         {
-
+             
         }
 
         public override void ExitThatMethod([NotNull] ThatMethodContext context)
