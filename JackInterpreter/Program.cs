@@ -8,32 +8,47 @@ internal class Program
 {
     private static void Main(string[] args)
     {
-        var inputFilePath = @"C:\Users\colte\Downloads\project_11\Seven\Main2.jack";
+        var inputPath = @"C:\Users\colte\Downloads\project_09\Square";
         var outputFilePath = @"C:\Jack\Jack.il";
 
-        using (var outputFile = File.Create(outputFilePath))
-        using (var inputFile = File.OpenRead(inputFilePath))
-        using (var outputStream = new StreamWriter(outputFile))
+        var symbolTable = new SymbolTable();
+
+        var walker = new ParseTreeWalker();
+        var sourceTrees = new List<IParseTree>();
+        foreach (var inputFilePath in Directory.GetFiles(inputPath))
         {
+            if (!inputFilePath.EndsWith(".jack")) 
+                continue;
+
+            var inputFile = File.OpenRead(inputFilePath);
+
+            var symbolTableListener = new PopulateSymbolTableJackListener(symbolTable);
             AntlrInputStream antlrInputStream = new AntlrInputStream(inputFile);
             JackLexer lexer = new JackLexer(antlrInputStream);
             CommonTokenStream tokens = new CommonTokenStream(lexer);
 
             JackParser parser = new JackParser(tokens);
             IParseTree tree = parser.classDeclaration();
-            ParseTreeWalker walker = new();
 
-            SymbolTable symbolTable = new SymbolTable();
-            EmitILJackListener emitILJackListener = new EmitILJackListener(
-                Path.GetFileNameWithoutExtension(inputFilePath), 
-                parser, 
-                tokens, 
+            walker.Walk(symbolTableListener, tree);
+            sourceTrees.Add(tree);
+        }
+
+        using (var outputFile = File.Create(outputFilePath))
+        using (var outputStream = new StreamWriter(outputFile))
+        {
+            outputStream.WriteLine(".assembly extern mscorlib {}");
+            outputStream.WriteLine($".assembly {JackDefinitions.JackAssemblyName} {{}}");
+
+            foreach (var tree in sourceTrees)
+            {
+                EmitILJackListener emitILJackListener = new EmitILJackListener(
                 outputStream,
                 symbolTable);
-            PopulateSymbolTableJackListener symbolTableListener = new PopulateSymbolTableJackListener(symbolTable);
-
-            //walker.Walk(symbolTableListener, tree);
-            walker.Walk(emitILJackListener, tree);
+                PopulateSymbolTableJackListener symbolTableListener = new PopulateSymbolTableJackListener(symbolTable);
+                walker.Walk(emitILJackListener, tree);
+            }
+            
         }
     }
 }

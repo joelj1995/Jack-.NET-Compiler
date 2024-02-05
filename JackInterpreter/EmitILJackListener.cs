@@ -12,22 +12,18 @@ namespace JackInterpreter
 {
     internal class EmitILJackListener : JackBaseListener
     {
-        public EmitILJackListener(string fileName, JackParser jackParser, CommonTokenStream tokens, StreamWriter outputStream, SymbolTable symbolTable) : base()
+        public EmitILJackListener(StreamWriter outputStream, SymbolTable symbolTable) : base()
         {
-            this.parser = jackParser;
-            this.tokens = tokens;
             this.outputStream = outputStream;
             this.symbolTable = symbolTable;
         }
 
         public override void EnterClassDeclaration(JackParser.ClassDeclarationContext context)
         {
-            // TODO: Really this header just be written somewhere else for cases where we're handling multiple Jack source filesf
             string className = context.className().ID().ToString() ?? 
                 throw new NullReferenceException("Class Name Null");
-            outputStream.WriteLine(".assembly extern mscorlib {}");
-            outputStream.WriteLine($".assembly {jackAssemblyName} {{}}");
-            outputStream.WriteLine($".class public auto ansi beforefieldinit {jackAssemblyName}.{className} extends [mscorlib]System.Object");
+            
+            outputStream.WriteLine($".class public auto ansi beforefieldinit {JackDefinitions.JackAssemblyName}.{className} extends [mscorlib]System.Object");
             outputStream.WriteLine("{");
         }
 
@@ -173,10 +169,7 @@ namespace JackInterpreter
             outputStream.WriteLine("not");
         }
 
-        private readonly JackParser parser;
-        private readonly CommonTokenStream tokens;
         private readonly StreamWriter outputStream;
-        private const string jackAssemblyName = "JackExecutable";
         private readonly SymbolTable symbolTable;
 
         private int ifCookie = 0;

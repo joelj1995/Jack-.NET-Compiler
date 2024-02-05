@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static JackInterpreter.JackEnums;
+using static JackInterpreter.JackDefinitions;
 
 namespace JackInterpreter
 {

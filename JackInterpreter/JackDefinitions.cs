@@ -6,11 +6,13 @@ using System.Threading.Tasks;
 
 namespace JackInterpreter
 {
-    internal class JackEnums
+    internal static class JackDefinitions
     {
         internal enum SymbolKind
         {
             STATIC, FIELD, ARG, VAR, NONE
         }
+
+        public const string JackAssemblyName = "JackExecutable";
     }
 }
