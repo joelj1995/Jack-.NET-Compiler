@@ -118,7 +118,7 @@ namespace JackInterpreter
         public override void EnterConstInt([NotNull] ConstIntContext context)
         {
             var value = context.INTCONST().ToString();
-            outputStream.WriteLine($"ldc.i4.{value}");
+            outputStream.WriteLine($"ldc.i4 {value}");
         }
 
         public override void ExitBinaryOp([NotNull] BinaryOpContext context)
