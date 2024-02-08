@@ -1,6 +1,7 @@
 ﻿using Antlr4.Runtime;
 using Antlr4.Runtime.Misc;
 using System;
+using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection.Emit;
@@ -12,9 +13,9 @@ namespace JackInterpreter
 {
     internal class EmitILJackListener : JackBaseListener
     {
-        public EmitILJackListener(StreamWriter outputStream, SubroutineSymbolTable subroutineSymbolTable) : base()
+        public EmitILJackListener(IndentedTextWriter outputStream, SubroutineSymbolTable subroutineSymbolTable) : base()
         {
-            this.outputStream = outputStream;
+            this.writer = outputStream;
             this.subroutineSymbolTable = subroutineSymbolTable;
         }
 
@@ -22,13 +23,15 @@ namespace JackInterpreter
         {
             string className = context.className().ID().ToString() ?? 
                 throw new NullReferenceException("Class Name Null");
-            outputStream.WriteLine($".class public auto ansi beforefieldinit {JackDefinitions.JackAssemblyName}.{className} extends [mscorlib]System.Object");
-            outputStream.WriteLine("{");
+            writer.WriteLine($".class public auto ansi beforefieldinit {JackDefinitions.JackAssemblyName}.{className} extends [mscorlib]System.Object");
+            writer.WriteLine("{");
+            writer.Indent++;
         }
 
         public override void ExitClassDeclaration([NotNull] ClassDeclarationContext context)
         {
-            outputStream.WriteLine("}");
+            writer.Indent--;
+            writer.WriteLine("}");
         }
 
         public override void EnterClassVarDec([NotNull] ClassVarDecContext context)
@@ -71,7 +74,7 @@ namespace JackInterpreter
 
             foreach (var field in context.varName())
             {
-                outputStream.WriteLine($".field private {modifier} {fieldTypeString} {field.ID()}");
+                writer.WriteLine($".field private {modifier} {fieldTypeString} {field.ID()}");
             }
         }
 
@@ -81,16 +84,18 @@ namespace JackInterpreter
             string subroutineName = context.subroutineName().ID().ToString() ?? 
                 throw new NullReferenceException("Subroutine Name Null");
             string modifier = context.subroutineDecModifier() is FunctionContext ctx ? "static" : "";
-            outputStream.WriteLine($".method {modifier} public void {subroutineName}() cil managed");
-            outputStream.WriteLine("{");
+            writer.WriteLine($".method {modifier} public void {subroutineName}() cil managed");
+            writer.WriteLine("{");
+            writer.Indent++;
             if (subroutineName.Equals("main"))
-                outputStream.WriteLine($".entrypoint");
-            outputStream.WriteLine($".maxstack 256");
+                writer.WriteLine($".entrypoint");
+            writer.WriteLine($".maxstack 256");
         }
 
         public override void ExitSubroutineDec([NotNull] SubroutineDecContext context)
         {
-            outputStream.WriteLine("}");
+            writer.Indent--;
+            writer.WriteLine("}");
         }
 
         public override void EnterSubroutineBody([NotNull] SubroutineBodyContext context)
@@ -99,7 +104,7 @@ namespace JackInterpreter
 
         public override void ExitSubroutineBody([NotNull] SubroutineBodyContext context)
         {
-            outputStream.WriteLine("ret");
+            writer.WriteLine("ret");
         }
 
         public override void EnterIfStatement([NotNull] IfStatementContext context)
@@ -111,14 +116,14 @@ namespace JackInterpreter
         {
             var nextCookie = ifCookie++;
             intCookieStack.Push(nextCookie);
-            outputStream.WriteLine($"brfalse IF_ELSE_{nextCookie}");
+            writer.WriteLine($"brfalse IF_ELSE_{nextCookie}");
         }
 
         public override void ExitIfBody([NotNull] IfBodyContext context)
         { 
             var lastCookie = intCookieStack.Peek();
-            outputStream.WriteLine($"br IF_EXIT_{lastCookie}");
-            outputStream.WriteLine($"IF_ELSE_{lastCookie}:");
+            writer.WriteLine($"br IF_EXIT_{lastCookie}");
+            writer.WriteLine($"IF_ELSE_{lastCookie}:");
         }
 
         public override void EnterElseBody([NotNull] ElseBodyContext context)
@@ -129,7 +134,7 @@ namespace JackInterpreter
         public override void ExitIfStatement([NotNull] IfStatementContext context)
         {
             var lastCookie = intCookieStack.Pop();
-            outputStream.WriteLine($"IF_EXIT_{lastCookie}:");
+            writer.WriteLine($"IF_EXIT_{lastCookie}:");
         }
 
 
@@ -150,7 +155,7 @@ namespace JackInterpreter
                 switch (rhs)
                 {
                     case "printInt":
-                        outputStream.WriteLine("call void [mscorlib]System.Console::Write(int32)");
+                        writer.WriteLine("call void [mscorlib]System.Console::Write(int32)");
                         break;
                     default:
                         throw new NotImplementedException(rhs);
@@ -161,7 +166,7 @@ namespace JackInterpreter
         public override void EnterConstInt([NotNull] ConstIntContext context)
         {
             var value = context.INTCONST().ToString();
-            outputStream.WriteLine($"ldc.i4 {value}");
+            writer.WriteLine($"ldc.i4 {value}");
         }
 
         public override void ExitBinaryOp([NotNull] BinaryOpContext context)
@@ -171,31 +176,31 @@ namespace JackInterpreter
             switch (opToken)
             {
                 case "+":
-                    outputStream.WriteLine("add.ovf");
+                    writer.WriteLine("add.ovf");
                     break;
                 case "-":
-                    outputStream.WriteLine("sub.ovf");
+                    writer.WriteLine("sub.ovf");
                     break;
                 case "*":
-                    outputStream.WriteLine("mul.ovf");
+                    writer.WriteLine("mul.ovf");
                     break;
                 case "/":
-                    outputStream.WriteLine("div.ovf");
+                    writer.WriteLine("div.ovf");
                     break;
                 case "&":
-                    outputStream.WriteLine("and");
+                    writer.WriteLine("and");
                     break;
                 case "|":
-                    outputStream.WriteLine("or");
+                    writer.WriteLine("or");
                     break;
                 case "<":
-                    outputStream.WriteLine("clt");
+                    writer.WriteLine("clt");
                     break;
                 case ">":
-                    outputStream.WriteLine("cgt");
+                    writer.WriteLine("cgt");
                     break;
                 case "=":
-                    outputStream.WriteLine("ceq");
+                    writer.WriteLine("ceq");
                     break;
                 default:
                     throw new NotImplementedException(opToken);
@@ -204,15 +209,15 @@ namespace JackInterpreter
 
         public override void ExitUnaryOpMinus([NotNull] UnaryOpMinusContext context)
         {
-            outputStream.WriteLine("neg");
+            writer.WriteLine("neg");
         }
 
         public override void ExitUnaryOpNot([NotNull] UnaryOpNotContext context)
         {
-            outputStream.WriteLine("not");
+            writer.WriteLine("not");
         }
 
-        private readonly StreamWriter outputStream;
+        private readonly IndentedTextWriter writer;
         private readonly DataSymbolTable symbolTable = new DataSymbolTable();
         private readonly SubroutineSymbolTable subroutineSymbolTable;
 

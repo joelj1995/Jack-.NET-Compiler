@@ -2,6 +2,7 @@
 using Antlr4.Runtime.Tree;
 using Antlr4.Runtime.Tree.Pattern;
 using JackInterpreter;
+using System.CodeDom.Compiler;
 using System.Reflection.Emit;
 
 internal class Program
@@ -34,20 +35,24 @@ internal class Program
             sourceTrees.Add(tree);
         }
 
+        var baseTextWriter = new StringWriter();
+        var writer = new IndentedTextWriter(baseTextWriter, "    ");
         using (var outputFile = File.Create(outputFilePath))
         using (var outputStream = new StreamWriter(outputFile))
         {
-            outputStream.WriteLine(".assembly extern mscorlib {}");
-            outputStream.WriteLine($".assembly {JackDefinitions.JackAssemblyName} {{}}");
+            writer.WriteLine(".assembly extern mscorlib {}");
+            writer.WriteLine($".assembly {JackDefinitions.JackAssemblyName} {{}}");
 
             foreach (var tree in sourceTrees)
             {
                 EmitILJackListener emitILJackListener = new EmitILJackListener(
-                    outputStream,
+                    writer,
                     subroutineSymbolTable);
                 walker.Walk(emitILJackListener, tree);
+                writer.WriteLine();
             }
             
+            outputStream.Write(baseTextWriter.ToString());
         }
     }
 }
