@@ -234,6 +234,27 @@ namespace JackInterpreter
             writer.WriteLine($"IF_ELSE_{lastCookie}:");
         }
 
+        public override void ExitLetStatement([NotNull] LetStatementContext context)
+        {
+            var varName = context.varName().ID().ToString() ?? throw new NullReferenceException();
+            var index = dataSymbolTable.IndexOf(varName);
+            string op;
+            switch (dataSymbolTable.KindOf(varName))
+            {
+                case SymbolKind.ARG:
+                    writer.WriteLine($"starg.s {varName}");
+                    return;
+                case SymbolKind.VAR:
+                    writer.WriteLine($"stloc {index}");
+                    return;
+                case SymbolKind.FIELD:
+                    writer.WriteLine($"stfld {dataSymbolTable.TypeOf(varName)} {JackDefinitions.JackAssemblyName}.{className}::{varName}");
+                    return;
+                default:
+                    throw new NotImplementedException(dataSymbolTable.KindOf(varName).ToString());
+            }
+        }
+
         public override void EnterElseBody([NotNull] ElseBodyContext context)
         {
             base.EnterElseBody(context);
