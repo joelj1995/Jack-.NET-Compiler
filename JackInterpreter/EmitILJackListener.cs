@@ -83,8 +83,26 @@ namespace JackInterpreter
             symbolTable.StartSubroutine();
             string subroutineName = context.subroutineName().ID().ToString() ?? 
                 throw new NullReferenceException("Subroutine Name Null");
-            string modifier = context.subroutineDecModifier() is FunctionContext ctx ? "static" : "";
-            writer.WriteLine($".method {modifier} public void {subroutineName}() cil managed");
+            var modifier = context.subroutineDecModifier();
+            string modifierString;
+            if (modifier is ConstructorContext)
+            {
+                modifierString = "specialname rtspecialname instance";
+                subroutineName = ".ctor";
+            }
+            else if (modifier is FunctionContext)
+            {
+                modifierString = "static";
+            }
+            else if (modifier is MethodContext)
+            {
+                modifierString = "instance";
+            }
+            else
+            {
+                throw new NotImplementedException(modifier.GetText());
+            }
+            writer.WriteLine($".method public {modifierString} void {subroutineName}() cil managed");
             writer.WriteLine("{");
             writer.Indent++;
             if (subroutineName.Equals("main"))
