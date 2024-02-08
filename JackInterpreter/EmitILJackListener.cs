@@ -31,6 +31,50 @@ namespace JackInterpreter
             outputStream.WriteLine("}");
         }
 
+        public override void EnterClassVarDec([NotNull] ClassVarDecContext context)
+        {
+            var modifier = context.classVarDecModifier().GetText();
+            switch (modifier)
+            {
+                case "field":
+                    modifier = "";
+                    break;
+                case "static":
+                    break;
+                default:
+                    throw new NotImplementedException(modifier);
+
+            }
+            var fieldType = context.type();
+            var fieldTypeString = "UNKNOWN";
+            if (fieldType is TypeIntContext)
+            {
+                fieldTypeString = "int16";
+            }
+            else if (fieldType is TypeCharContext)
+            {
+                fieldTypeString = "char";
+            }
+            else if (fieldType is TypeBoolContext)
+            {
+                fieldTypeString = "bool";
+            }
+            else if (fieldType is TypeClassContext classContext)
+            {
+                var className = classContext.className().ID().ToString() ?? throw new NullReferenceException();
+                fieldTypeString = $"class {JackDefinitions.JackAssemblyName}.{className}";
+            }
+            else
+            {
+                throw new NotImplementedException(fieldType.GetText());
+            }
+
+            foreach (var field in context.varName())
+            {
+                outputStream.WriteLine($".field private {modifier} {fieldTypeString} {field.ID()}");
+            }
+        }
+
         public override void EnterSubroutineDec([NotNull] SubroutineDecContext context)
         {
             symbolTable.StartSubroutine();

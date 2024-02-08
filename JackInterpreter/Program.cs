@@ -11,7 +11,6 @@ internal class Program
         var inputPath = @"C:\Users\colte\Downloads\project_09\Square";
         var outputFilePath = @"C:\Jack\Jack.il";
 
-        var symbolTable = new DataSymbolTable();
         var subroutineSymbolTable = new SubroutineSymbolTable();
 
         var walker = new ParseTreeWalker();
