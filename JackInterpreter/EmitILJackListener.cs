@@ -1,5 +1,6 @@
 ﻿using Antlr4.Runtime;
 using Antlr4.Runtime.Misc;
+using Microsoft.VisualBasic.FileIO;
 using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
@@ -102,27 +103,68 @@ namespace JackInterpreter
             {
                 throw new NotImplementedException(modifier.GetText());
             }
-            writer.WriteLine($".method public {modifierString} void {subroutineName}() cil managed");
-            writer.WriteLine("{");
-            writer.Indent++;
-            if (subroutineName.Equals("main"))
-                writer.WriteLine($".entrypoint");
-            writer.WriteLine($".maxstack 256");
+            writer.WriteLine($".method public {modifierString} void {subroutineName}(");
+            subroutineNames.Push( subroutineName );
         }
 
         public override void ExitSubroutineDec([NotNull] SubroutineDecContext context)
         {
+            
+        }
+
+        public override void EnterParameterList([NotNull] ParameterListContext context)
+        {
+            writer.Indent++;
+            var paramaters = context.parameter();
+            for (int i = 0; i < paramaters.Length; i++)
+            {
+                string typeString;
+                string paramName = paramaters[i].varName().ID().ToString() ?? throw new NullReferenceException();
+                var paramType = paramaters[0].type();
+                if (paramType is TypeIntContext)
+                {
+                    typeString = "int16";
+                }
+                else if (paramType is TypeCharContext)
+                {
+                    typeString = "char";
+                }
+                else if (paramType is TypeBoolContext)
+                {
+                    typeString = "bool";
+                }
+                else if (paramType is TypeClassContext classContext)
+                {
+                    var className = classContext.className().ID().ToString() ?? throw new NullReferenceException();
+                    typeString = $"class {JackDefinitions.JackAssemblyName}.{className}";
+                }
+                else
+                {
+                    throw new NotImplementedException(paramType.GetText());
+                }
+                var separator = (i + 1 == paramaters.Length) ? "" : ",";
+                writer.WriteLine($"{typeString} {paramName}{separator}");
+            }
+            
             writer.Indent--;
-            writer.WriteLine("}");
         }
 
         public override void EnterSubroutineBody([NotNull] SubroutineBodyContext context)
         {
+            writer.WriteLine(") cil managed");
+            writer.WriteLine("{");
+            writer.Indent++;
+            if (subroutineNames.Peek().Equals("main"))
+                writer.WriteLine($".entrypoint");
+            writer.WriteLine($".maxstack 256");
         }
 
         public override void ExitSubroutineBody([NotNull] SubroutineBodyContext context)
         {
             writer.WriteLine("ret");
+            writer.Indent--;
+            writer.WriteLine("}");
+            subroutineNames.Pop();
         }
 
         public override void EnterIfStatement([NotNull] IfStatementContext context)
@@ -235,11 +277,13 @@ namespace JackInterpreter
             writer.WriteLine("not");
         }
 
+
         private readonly IndentedTextWriter writer;
         private readonly DataSymbolTable symbolTable = new DataSymbolTable();
         private readonly SubroutineSymbolTable subroutineSymbolTable;
 
         private int ifCookie = 0;
         private Stack<int> intCookieStack = new();
+        private Stack<string> subroutineNames = new Stack<string>();
     }
 }
