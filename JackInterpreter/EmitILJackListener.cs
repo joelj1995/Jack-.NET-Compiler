@@ -6,6 +6,7 @@ using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection.Emit;
+using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
 using static JackParser;
@@ -157,6 +158,48 @@ namespace JackInterpreter
             if (subroutineNames.Peek().Equals("main"))
                 writer.WriteLine($".entrypoint");
             writer.WriteLine($".maxstack 256");
+            writer.WriteLine(".locals init(");
+            writer.Indent++;
+            int p = 0;
+            int j = 0;
+            foreach (var varDecContext in context.varDec())
+            {
+                var fieldType = varDecContext.type();
+                var fieldTypeString = "UNKNOWN";
+                if (fieldType is TypeIntContext)
+                {
+                    fieldTypeString = "int16";
+                }
+                else if (fieldType is TypeCharContext)
+                {
+                    fieldTypeString = "char";
+                }
+                else if (fieldType is TypeBoolContext)
+                {
+                    fieldTypeString = "bool";
+                }
+                else if (fieldType is TypeClassContext classContext)
+                {
+                    var className = classContext.className().ID().ToString() ?? throw new NullReferenceException();
+                    fieldTypeString = $"class {JackDefinitions.JackAssemblyName}.{className}";
+                }
+                else
+                {
+                    throw new NotImplementedException(fieldType.GetText());
+                }
+
+                var varNames = varDecContext.varName();
+                for (int i = 0; i < varNames.Length; i++)
+                {
+                    var varNameString = varNames[i].GetText();
+                    var separator = (i + 1 == varNames.Length && j + 1 == context.varDec().Length) ? "" : ",";
+                    writer.WriteLine($"[{p}] {fieldTypeString} {varNameString}{separator}");
+                    p++;
+                }
+                j++;
+            }
+            writer.Indent--;
+            writer.WriteLine(")");
         }
 
         public override void ExitSubroutineBody([NotNull] SubroutineBodyContext context)
