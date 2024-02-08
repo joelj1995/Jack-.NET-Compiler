@@ -26,6 +26,7 @@ namespace JackInterpreter
             string className = context.className().ID().ToString() ?? 
                 throw new NullReferenceException("Class Name Null");
             writer.WriteLine($".class public auto ansi beforefieldinit {JackDefinitions.JackAssemblyName}.{className} extends [mscorlib]System.Object");
+            this.className = className;
             writer.WriteLine("{");
             writer.Indent++;
         }
@@ -77,12 +78,13 @@ namespace JackInterpreter
             foreach (var field in context.varName())
             {
                 writer.WriteLine($".field private {modifier} {fieldTypeString} {field.ID()}");
+                dataSymbolTable.Define(field.ID().ToString() ?? throw new NullReferenceException(), fieldTypeString, SymbolKind.FIELD);
             }
         }
 
         public override void EnterSubroutineDec([NotNull] SubroutineDecContext context)
         {
-            symbolTable.StartSubroutine();
+            dataSymbolTable.StartSubroutine();
             string subroutineName = context.subroutineName().ID().ToString() ?? 
                 throw new NullReferenceException("Subroutine Name Null");
             var modifier = context.subroutineDecModifier();
@@ -145,6 +147,7 @@ namespace JackInterpreter
                 }
                 var separator = (i + 1 == paramaters.Length) ? "" : ",";
                 writer.WriteLine($"{typeString} {paramName}{separator}");
+                dataSymbolTable.Define(paramName, typeString, SymbolKind.ARG);
             }
             
             writer.Indent--;
@@ -194,6 +197,8 @@ namespace JackInterpreter
                     var varNameString = varNames[i].GetText();
                     var separator = (i + 1 == varNames.Length && j + 1 == context.varDec().Length) ? "" : ",";
                     writer.WriteLine($"[{p}] {fieldTypeString} {varNameString}{separator}");
+                    dataSymbolTable.Define(varNameString, fieldTypeString, SymbolKind.VAR);
+                    
                     p++;
                 }
                 j++;
@@ -208,7 +213,7 @@ namespace JackInterpreter
             writer.Indent--;
             writer.WriteLine("}");
             subroutineNames.Pop();
-        }
+    }
 
         public override void EnterIfStatement([NotNull] IfStatementContext context)
         {
@@ -272,6 +277,28 @@ namespace JackInterpreter
             writer.WriteLine($"ldc.i4 {value}");
         }
 
+        public override void EnterTermVarName([NotNull] TermVarNameContext context)
+        {
+            var varName = context.varName().ID().ToString() ?? throw new NullReferenceException();
+            var index = dataSymbolTable.IndexOf(varName);
+            string op;
+            switch (dataSymbolTable.KindOf(varName))
+            {
+                case SymbolKind.ARG:
+                    op = "ldarg";
+                    break;
+                case SymbolKind.VAR:
+                    op = "ldloc";
+                    break;
+                case SymbolKind.FIELD:
+                    writer.WriteLine($"ldfld {dataSymbolTable.TypeOf(varName)} {JackDefinitions.JackAssemblyName}.{className}::{varName}");
+                    return;
+                default:
+                    throw new NotImplementedException(dataSymbolTable.KindOf(varName).ToString());
+            }
+            writer.WriteLine($"{op}.{index}");
+        }
+
         public override void ExitBinaryOp([NotNull] BinaryOpContext context)
         {
             var text = context.GetText();
@@ -322,11 +349,14 @@ namespace JackInterpreter
 
 
         private readonly IndentedTextWriter writer;
-        private readonly DataSymbolTable symbolTable = new DataSymbolTable();
         private readonly SubroutineSymbolTable subroutineSymbolTable;
 
         private int ifCookie = 0;
         private Stack<int> intCookieStack = new();
         private Stack<string> subroutineNames = new Stack<string>();
+
+        private readonly record struct TableEntry(string name, string type, int index);
+        private DataSymbolTable dataSymbolTable = new DataSymbolTable();
+        private string className;
     }
 }
