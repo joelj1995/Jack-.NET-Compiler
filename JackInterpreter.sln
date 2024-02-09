@@ -5,7 +5,9 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JackInterpreter", "JackInterpreter\JackInterpreter.csproj", "{6D013C1C-E826-47C9-8A3C-8EEECE890BB8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NJackOS", "NJackOS\NJackOS.csproj", "{5A84EC75-7117-45B1-848A-1819661AC2D1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NJackOS.Interface", "NJackOS\NJackOS.Interface.csproj", "{5A84EC75-7117-45B1-848A-1819661AC2D1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NJackOS.Implementation", "NJackOS.Implementation\NJackOS.Implementation.csproj", "{97A9A32A-5533-484E-BC29-76756C276079}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{5A84EC75-7117-45B1-848A-1819661AC2D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5A84EC75-7117-45B1-848A-1819661AC2D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5A84EC75-7117-45B1-848A-1819661AC2D1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{97A9A32A-5533-484E-BC29-76756C276079}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{97A9A32A-5533-484E-BC29-76756C276079}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{97A9A32A-5533-484E-BC29-76756C276079}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{97A9A32A-5533-484E-BC29-76756C276079}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

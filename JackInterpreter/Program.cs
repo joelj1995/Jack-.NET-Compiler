@@ -41,6 +41,7 @@ internal class Program
         using (var outputStream = new StreamWriter(outputFile))
         {
             writer.WriteLine(".assembly extern mscorlib {}");
+            writer.WriteLine(".assembly extern NJackOS.Interface {}");
             writer.WriteLine($".assembly {JackDefinitions.JackAssemblyName} {{}}");
 
             foreach (var tree in sourceTrees)

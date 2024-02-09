@@ -270,7 +270,13 @@ namespace JackInterpreter
 
         public override void EnterThatMethod([NotNull] ThatMethodContext context)
         {
-             
+            var lhs = context.className()?.ID()?.ToString() ??
+                context.varName()?.ID()?.ToString() ??
+                throw new NullReferenceException("lhs");
+            if (lhs.Equals("Output"))
+            {
+                writer.WriteLine("call class [NJackOS.Interface]NJackOS.Interface.IJackOutput [NJackOS.Interface]NJackOS.Interface.JackOSProvider::get_Output()");
+            }
         }
 
         public override void ExitThatMethod([NotNull] ThatMethodContext context)
@@ -284,7 +290,7 @@ namespace JackInterpreter
                 switch (rhs)
                 {
                     case "printInt":
-                        writer.WriteLine("call void [mscorlib]System.Console::Write(int32)");
+                        writer.WriteLine("callvirt instance void [NJackOS.Interface]NJackOS.Interface.IJackOutput::printInt(int16)");
                         break;
                     default:
                         throw new NotImplementedException(rhs);
