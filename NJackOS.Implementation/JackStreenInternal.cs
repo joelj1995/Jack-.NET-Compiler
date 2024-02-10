@@ -106,7 +106,6 @@ namespace NJackOS.Implementation
 
         public void drawRectangle(short x1, short y1, short x2, short y2, bool color)
         {
-            Console.WriteLine($"{x1} {x2} {y1} {y2}");
             app.Dispatcher.BeginInvoke(new Action(() =>
             {
                 using (writeableBitmap.GetBitmapContext())

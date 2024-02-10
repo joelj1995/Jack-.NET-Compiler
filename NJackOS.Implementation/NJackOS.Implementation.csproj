@@ -51,7 +51,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Class1.cs" />
     <Compile Include="JackOutput.cs" />
     <Compile Include="JackScreen.cs" />
     <Compile Include="JackStreenInternal.cs" />
