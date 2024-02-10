@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 
 namespace NJackOS.Implementation
 {
@@ -9,37 +10,45 @@ namespace NJackOS.Implementation
     {
         public JackScreen() 
         {
+            internals = new JackStreenInternal();
+            Thread t = new Thread(new ThreadStart(internals.StartNewThread));
+            t.SetApartmentState(ApartmentState.STA);
+            t.Start();
+            while (!internals.Started)
+            {
+                Thread.Sleep(10);
+            }
             Console.WriteLine("Jack Screen initialized.");
         }
 
         public void clearScreen()
         {
-            throw new NotImplementedException();
         }
 
         public void drawCircle(short cx, short cy, short r)
         {
-            throw new NotImplementedException();
         }
 
         public void drawLine(short x1, short x2, short y1, short y2)
         {
-            throw new NotImplementedException();
+            internals.drawLine(x1, x2, y1, y2, color);
         }
 
         public void drawPixel(short x, short y)
         {
-            throw new NotImplementedException();
+            internals.drawPixel(x, y, color);
         }
 
         public void drawRectangle(short x1, short x2, short y1, short y2)
         {
-            throw new NotImplementedException();
         }
 
         public void setColor(bool b)
         {
-            throw new NotImplementedException();
+            this.color = b;
         }
+
+        private JackStreenInternal internals;
+        private bool color = false;
     }
 }
