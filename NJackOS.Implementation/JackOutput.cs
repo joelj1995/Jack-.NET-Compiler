@@ -44,7 +44,18 @@ namespace NJackOS.Implementation
             }
         }
 
-        public void printString(string s)
+        public void printString(JackStringClass s)
+        {
+            short i = 0;
+            while (i < s.length())
+            {
+                printChar(s.charAt(i));
+
+                i = (short)(i + 1);
+            }
+        }
+
+        private void printString(string s)
         {
             int i = 0;
             while (i < s.Length)

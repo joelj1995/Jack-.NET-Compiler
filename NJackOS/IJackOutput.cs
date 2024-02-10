@@ -8,7 +8,7 @@ namespace NJackOS.Interface
     {
         void moveCursor(short i, short j);
         void printChar(char c);
-        void printString(string s);
+        void printString(JackStringClass s);
         void printInt(short i);
         void println();
         void backSpace();

@@ -21,13 +21,18 @@ namespace NJackOS.Implementation
 
         public JackStringClass FromCLRString(string value)
         {
-            throw new NotImplementedException();
+            var result = New((short)value.Length);
+            for (short i = 0; i < value.Length; i++)
+            {
+                result.appendChar(value[i]);
+            }
+            return result;
         }
 
         public JackStringClass New(short maxLength)
         {
-            throw new NotImplementedException();
-            //return new JackStringClassImplementation(maxLength);
+            var start = JackOSProvider.Memory.alloc(maxLength);
+            return new JackStringClassImplementation(maxLength, start.Start);
         }
 
         public char newLine()

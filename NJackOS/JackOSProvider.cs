@@ -56,6 +56,18 @@ namespace NJackOS.Interface
             }
         }
 
+        public static IJackString String
+        {
+            get
+            {
+                if (jackString != null) return jackString;
+
+                jackString = GetProvider<IJackString>();
+
+                return jackString;
+            }
+        }
+
         private static T GetProvider<T>()
         {
             if (!loaded)
@@ -83,6 +95,7 @@ namespace NJackOS.Interface
         private static IJackScreen jackScreen;
         private static IJackMemory jackMemory;
         private static IJackArray jackArray;
+        private static IJackString jackString;
         private static bool loaded = false;
     }
 }

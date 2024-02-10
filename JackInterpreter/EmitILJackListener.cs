@@ -269,6 +269,10 @@ namespace JackInterpreter
             {
                 writer.WriteLine("call class [NJackOS.Interface]NJackOS.Interface.IJackArray [NJackOS.Interface]NJackOS.Interface.JackOSProvider::get_Array()");
             }
+            else if (lhs.Equals("String"))
+            {
+                writer.WriteLine("call class [NJackOS.Interface]NJackOS.Interface.IJackArray [NJackOS.Interface]NJackOS.Interface.JackOSProvider::get_String()");
+            }
         }
 
         public override void ExitThatMethod([NotNull] ThatMethodContext context)
@@ -288,7 +292,7 @@ namespace JackInterpreter
                         writer.WriteLine("callvirt instance void [NJackOS.Interface]NJackOS.Interface.IJackOutput::printChar(char c)");
                         break;
                     case "printString":
-                        writer.WriteLine("callvirt instance void [NJackOS.Interface]NJackOS.Interface.IJackOutput::printString(string)");
+                        writer.WriteLine("callvirt instance void [NJackOS.Interface]NJackOS.Interface.IJackOutput::printString(JackStringClass)");
                         break;
                     case "printInt":
                         writer.WriteLine("callvirt instance void [NJackOS.Interface]NJackOS.Interface.IJackOutput::printInt(int16)");
@@ -338,6 +342,15 @@ namespace JackInterpreter
                         break;
                 }
             }
+            else if (lhs.Equals("String"))
+            {
+                switch (rhs)
+                {
+                    case "new":
+                        writer.WriteLine("callvirt instance int16 [NJackOS.Interface]NJackOS.Interface.IJackString::New(int16)");
+                        break;
+                }
+            }
         }
 
         public override void EnterConstFalse([NotNull] ConstFalseContext context)
@@ -358,8 +371,10 @@ namespace JackInterpreter
 
         public override void EnterConstString([NotNull] ConstStringContext context)
         {
+            writer.WriteLine("call class [NJackOS.Interface]NJackOS.Interface.IJackArray [NJackOS.Interface]NJackOS.Interface.JackOSProvider::get_String()");
             var value = context.STRINGCONST().ToString();
             writer.WriteLine($"ldstr {value}");
+            writer.WriteLine("callvirt instance class [NJackOS.Interface]NJackOS.Interface.JackStringClass [NJackOS.Interface]NJackOS.Interface.IJackString::FromCLRString(string)");
         }
 
         public override void EnterTermVarName([NotNull] TermVarNameContext context)

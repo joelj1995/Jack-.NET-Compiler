@@ -9,16 +9,21 @@ namespace NJackOS.Implementation
 {
     internal class JackStringClassImplementation : JackStringClass
     {
-        public JackStringClassImplementation(short maxLength, short start) : base(maxLength, start) { }
+        public JackStringClassImplementation(short maxLength, short start) : base(maxLength, start) 
+        { 
+
+        }
 
         public override JackStringClass appendChar(char c)
         {
-            throw new NotImplementedException();
+            setCharAt(curLength, c);
+            curLength = (short)(curLength + 1);
+            return this;
         }
 
         public override char charAt(short i)
         {
-            throw new NotImplementedException();
+            return (char)JackOSProvider.Memory.peek((short)(start + i));
         }
 
         public override void dispose()
@@ -38,17 +43,31 @@ namespace NJackOS.Implementation
 
         public override short length()
         {
-            throw new NotImplementedException();
+            return curLength;
         }
 
-        public override void setChatAt(short i, char c)
+        public override void setCharAt(short i, char c)
         {
-            throw new NotImplementedException();
+            JackOSProvider.Memory.poke((short)(start + i), (short)c);
         }
 
         public override void setInt(short j)
         {
             throw new NotImplementedException();
         }
+
+        public override string ToCLRString()
+        {
+            var result = string.Empty;
+            short i = 0;
+            while (i < length())
+            {
+                result += charAt(i);
+                i = (short)(i + 1);
+            }
+            return result;
+        }
+
+        private short curLength = 0;
     }
 }
