@@ -277,6 +277,10 @@ namespace JackInterpreter
             {
                 writer.WriteLine("call class [NJackOS.Interface]NJackOS.Interface.IJackOutput [NJackOS.Interface]NJackOS.Interface.JackOSProvider::get_Output()");
             }
+            else if (lhs.Equals("Screen"))
+            {
+                writer.WriteLine("call class [NJackOS.Interface]NJackOS.Interface.IJackScreen [NJackOS.Interface]NJackOS.Interface.JackOSProvider::get_Screen()");
+            }
         }
 
         public override void ExitThatMethod([NotNull] ThatMethodContext context)
@@ -296,6 +300,42 @@ namespace JackInterpreter
                         throw new NotImplementedException(rhs);
                 }
             }
+            else if (lhs.Equals("Screen"))
+            {
+                switch (rhs)
+                {
+                    case "clearScreen":
+                        writer.WriteLine("callvirt instance void [NJackOS.Interface]NJackOS.Interface.IJackScreen::clearScreen()");
+                        break;
+                    case "drawLine":
+                        writer.WriteLine("callvirt instance void [NJackOS.Interface]NJackOS.Interface.IJackScreen::drawLine(int16 x1, int16 x2, int16 y1, int16 y2)");
+                        break;
+                    case "drawCircle":
+                        writer.WriteLine("callvirt instance void [NJackOS.Interface]NJackOS.Interface.IJackScreen::drawCircle(int16 cx, int16 cy, int16 r)");
+                        break;
+                    case "drawPixel":
+                        writer.WriteLine("callvirt instance void [NJackOS.Interface]NJackOS.Interface.IJackScreen::drawPixel(int16 x, int16 y)");
+                        break;
+                    case "drawRectangle":
+                        writer.WriteLine("callvirt instance void [NJackOS.Interface]NJackOS.Interface.IJackScreen::drawRectangle(int16 x1, int16 x2, int16 y1, int16 y2)");
+                        break;
+                    case "setColor":
+                        writer.WriteLine("callvirt instance void [NJackOS.Interface]NJackOS.Interface.IJackScreen::setColor(bool b)");
+                        break;
+                    default:
+                        throw new NotImplementedException(rhs);
+                }
+            }
+        }
+
+        public override void EnterConstFalse([NotNull] ConstFalseContext context)
+        {
+            writer.WriteLine("ldc.i4 0");
+        }
+
+        public override void EnterConstTrue([NotNull] ConstTrueContext context)
+        {
+            writer.WriteLine("ldc.i4 1");
         }
 
         public override void EnterConstInt([NotNull] ConstIntContext context)

@@ -14,24 +14,49 @@ namespace NJackOS.Interface
             {
                 if (jackOutput != null) return jackOutput;
 
-                Assembly.Load("NJackOS.Implementation");
+                jackOutput = GetProvider<IJackOutput>();
 
-                foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies().Where(a => !a.Equals(Assembly.GetExecutingAssembly())))
-                {
-                    var assignable = assembly.GetTypes().FirstOrDefault(t => typeof(IJackOutput).IsAssignableFrom(t));
-
-                    if (assignable != null)
-                    {
-                        jackOutput = (IJackOutput)Activator.CreateInstance(assignable);
-                        return jackOutput;
-                    }
-                }
-
-                throw new ApplicationException("Output is not implement");
+                return jackOutput;
             }
+        }
+
+        public static IJackScreen Screen
+        {
+            get
+            {
+                if (jackScreen != null) return jackScreen;
+
+                jackScreen = GetProvider<IJackScreen>();
+
+                return jackScreen;
+            }
+        }
+
+        private static T GetProvider<T>()
+        {
+            if (!loaded)
+            {
+                Assembly.Load("NJackOS.Implementation");
+                loaded = true;
+            }
+
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies().Where(a => !a.Equals(Assembly.GetExecutingAssembly())))
+            {
+                var assignable = assembly.GetTypes().FirstOrDefault(t => typeof(T).IsAssignableFrom(t));
+
+                if (assignable != null)
+                {
+                    var result = (T)Activator.CreateInstance(assignable);
+                    return result;
+                }
+            }
+
+            throw new ApplicationException($"{typeof(T)} is not implemented.");
         }
 
 
         private static IJackOutput jackOutput;
+        private static IJackScreen jackScreen;
+        private static bool loaded = false;
     }
 }
