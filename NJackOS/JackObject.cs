@@ -11,7 +11,7 @@ namespace NJackOS.Interface
             this.start = start;
         }
 
-        public short this[short i] { get => JackOSProvider.Memory.peek(i); set => JackOSProvider.Memory.poke(start, value); }
+        public short this[short i] { get => JackOSProvider.Memory.peek((short)(start + i)); set => JackOSProvider.Memory.poke((short)(start + i), value); }
 
         protected readonly short start;
     }

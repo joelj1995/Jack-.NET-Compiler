@@ -38,6 +38,10 @@ namespace NJackOS.Implementation
             memory[address] = value;
         }
 
+        /*
+         * An array of shorts works well enough but something
+         * more optimized could be used with a bit more sophistication.
+         */
         private short[] memory = new short[maxMem];
         public const int maxMem = 32768;
         public const short pheap = 2048;
