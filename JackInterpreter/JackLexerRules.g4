@@ -46,7 +46,7 @@ SYMBOL:
 
 ID: [a-zA-Z]+;
 INTCONST: [0-9]+;
-STRINGCONST: '"' ~('\\' | '"')* '"';
+STRINGCONST: '"' ~('"')* '"';
 
 NEWLINE: '\r'? '\n' -> channel(HIDDEN);
 COMMENT:

@@ -293,8 +293,23 @@ namespace JackInterpreter
             {
                 switch (rhs)
                 {
+                    case "moveCursor":
+                        writer.WriteLine("callvirt instance void [NJackOS.Interface]NJackOS.Interface.IJackOutput::moveCursor(int16, int16)");
+                        break;
+                    case "printChar":
+                        writer.WriteLine("callvirt instance void [NJackOS.Interface]NJackOS.Interface.IJackOutput::printChar(char c)");
+                        break;
+                    case "printString":
+                        writer.WriteLine("callvirt instance void [NJackOS.Interface]NJackOS.Interface.IJackOutput::printString(string)");
+                        break;
                     case "printInt":
                         writer.WriteLine("callvirt instance void [NJackOS.Interface]NJackOS.Interface.IJackOutput::printInt(int16)");
+                        break;
+                    case "println":
+                        writer.WriteLine("callvirt instance void [NJackOS.Interface]NJackOS.Interface.IJackOutput::println()");
+                        break;
+                    case "backSpace":
+                        writer.WriteLine("callvirt instance void [NJackOS.Interface]NJackOS.Interface.IJackOutput::backSpace()");
                         break;
                     default:
                         throw new NotImplementedException(rhs);
@@ -342,6 +357,12 @@ namespace JackInterpreter
         {
             var value = context.INTCONST().ToString();
             writer.WriteLine($"ldc.i4 {value}");
+        }
+
+        public override void EnterConstString([NotNull] ConstStringContext context)
+        {
+            var value = context.STRINGCONST().ToString();
+            writer.WriteLine($"ldstr {value}");
         }
 
         public override void EnterTermVarName([NotNull] TermVarNameContext context)
