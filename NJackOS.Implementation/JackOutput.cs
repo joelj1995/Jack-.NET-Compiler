@@ -46,7 +46,7 @@ namespace NJackOS.Implementation
 
         public void printString(string s)
         {
-            int i = 1;
+            int i = 0;
             while (i < s.Length)
             {
                 printChar(s[i]);

@@ -425,14 +425,21 @@ namespace JackInterpreter
             }
         }
 
-        public override void ExitUnaryOpMinus([NotNull] UnaryOpMinusContext context)
+        public override void ExitTermUnary([NotNull] TermUnaryContext context)
         {
-            writer.WriteLine("neg");
-        }
-
-        public override void ExitUnaryOpNot([NotNull] UnaryOpNotContext context)
-        {
-            writer.WriteLine("not");
+            var unaryOp = context.unaryOp();
+            if (unaryOp is UnaryOpMinusContext)
+            {
+                writer.WriteLine("neg");
+            }
+            else if (unaryOp is UnaryOpNotContext)
+            {
+                writer.WriteLine("not");
+            }
+            else
+            {
+                throw new NotImplementedException(unaryOp.GetText());
+            }
         }
 
 
