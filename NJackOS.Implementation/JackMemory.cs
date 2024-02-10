@@ -28,6 +28,11 @@ namespace NJackOS.Implementation
             return;
         }
 
+        public void deAlloc(short start)
+        {
+            return;
+        }
+
         public short peek(short address)
         {
             return memory[address];

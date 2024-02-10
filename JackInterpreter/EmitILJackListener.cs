@@ -53,7 +53,7 @@ namespace JackInterpreter
 
             }
             var fieldType = context.type();
-            var fieldTypeString = GetFieldTypeString(fieldType);
+            var fieldTypeString = JackToCLRTranslation.GetFieldTypeString(fieldType);
 
             foreach (var field in context.varName())
             {
@@ -104,7 +104,7 @@ namespace JackInterpreter
                 
                 string paramName = paramaters[i].varName().ID().ToString() ?? throw new NullReferenceException();
                 var paramType = paramaters[0].type();
-                string typeString = GetFieldTypeString(paramType);
+                string typeString = JackToCLRTranslation.GetFieldTypeString(paramType);
                 var separator = (i + 1 == paramaters.Length) ? "" : ",";
                 writer.WriteLine($"{typeString} {paramName}{separator}");
                 dataSymbolTable.Define(paramName, typeString, SymbolKind.ARG);
@@ -128,7 +128,7 @@ namespace JackInterpreter
             foreach (var varDecContext in context.varDec())
             {
                 var fieldType = varDecContext.type();
-                var fieldTypeString = GetFieldTypeString(fieldType);
+                var fieldTypeString = JackToCLRTranslation.GetFieldTypeString(fieldType);
 
                 var varNames = varDecContext.varName();
                 for (int i = 0; i < varNames.Length; i++)
@@ -271,7 +271,28 @@ namespace JackInterpreter
             }
             else if (lhs.Equals("String"))
             {
-                writer.WriteLine("call class [NJackOS.Interface]NJackOS.Interface.IJackArray [NJackOS.Interface]NJackOS.Interface.JackOSProvider::get_String()");
+                writer.WriteLine("call class [NJackOS.Interface]NJackOS.Interface.IJackString [NJackOS.Interface]NJackOS.Interface.JackOSProvider::get_String()");
+            }
+            else
+            {
+                string op;
+                var index = dataSymbolTable.IndexOf(lhs);
+                switch (dataSymbolTable.KindOf(lhs))
+                {
+                    case SymbolKind.ARG:
+                        op = "ldarg";
+                        writer.WriteLine($"{op}.{index}");
+                        break;
+                    case SymbolKind.VAR:
+                        op = "ldloc";
+                        writer.WriteLine($"{op}.{index}");
+                        break;
+                    case SymbolKind.FIELD:
+                        writer.WriteLine($"ldfld {dataSymbolTable.TypeOf(lhs)} {JackDefinitions.JackAssemblyName}.{className}::{lhs}");
+                        break;
+                    default:
+                        throw new NotImplementedException();
+                }
             }
         }
 
@@ -292,7 +313,7 @@ namespace JackInterpreter
                         writer.WriteLine("callvirt instance void [NJackOS.Interface]NJackOS.Interface.IJackOutput::printChar(char c)");
                         break;
                     case "printString":
-                        writer.WriteLine("callvirt instance void [NJackOS.Interface]NJackOS.Interface.IJackOutput::printString(JackStringClass)");
+                        writer.WriteLine("callvirt instance void [NJackOS.Interface]NJackOS.Interface.IJackOutput::printString(class [NJackOS.Interface]NJackOS.Interface.JackStringClass)");
                         break;
                     case "printInt":
                         writer.WriteLine("callvirt instance void [NJackOS.Interface]NJackOS.Interface.IJackOutput::printInt(int16)");
@@ -347,9 +368,24 @@ namespace JackInterpreter
                 switch (rhs)
                 {
                     case "new":
-                        writer.WriteLine("callvirt instance int16 [NJackOS.Interface]NJackOS.Interface.IJackString::New(int16)");
+                        writer.WriteLine("callvirt instance class [NJackOS.Interface]NJackOS.Interface.JackStringClass [NJackOS.Interface]NJackOS.Interface.IJackString::New(int16)");
+                        break;
+                    case "backSpace":
+                        writer.WriteLine("callvirt instance char [NJackOS.Interface]NJackOS.Interface.IJackString::backSpace()");
+                        break;
+                    case "doubleQuote":
+                        writer.WriteLine("callvirt instance char [NJackOS.Interface]NJackOS.Interface.IJackString::doubleQuote()");
+                        break;
+                    case "newLine":
+                        writer.WriteLine("callvirt instance char [NJackOS.Interface]NJackOS.Interface.IJackString::newLine()");
                         break;
                 }
+            }
+            else
+            {
+                var type = dataSymbolTable.TypeOf(lhs);
+                var subroutineEntry = subroutineSymbolTable.Get(type, rhs);
+                writer.WriteLine(subroutineEntry.GenerateInstanceInvocationIL(type));
             }
         }
 
@@ -371,7 +407,7 @@ namespace JackInterpreter
 
         public override void EnterConstString([NotNull] ConstStringContext context)
         {
-            writer.WriteLine("call class [NJackOS.Interface]NJackOS.Interface.IJackArray [NJackOS.Interface]NJackOS.Interface.JackOSProvider::get_String()");
+            writer.WriteLine("call class [NJackOS.Interface]NJackOS.Interface.IJackString [NJackOS.Interface]NJackOS.Interface.JackOSProvider::get_String()");
             var value = context.STRINGCONST().ToString();
             writer.WriteLine($"ldstr {value}");
             writer.WriteLine("callvirt instance class [NJackOS.Interface]NJackOS.Interface.JackStringClass [NJackOS.Interface]NJackOS.Interface.IJackString::FromCLRString(string)");
@@ -484,36 +520,7 @@ namespace JackInterpreter
             writer.WriteLine("callvirt instance int16 [NJackOS.Interface]NJackOS.Interface.JackObject::get_Item(int16)");
         }
 
-        private string GetFieldTypeString(TypeContext fieldType)
-        {
-            string fieldTypeString;
-            if (fieldType is TypeIntContext)
-            {
-                fieldTypeString = "int16";
-            }
-            else if (fieldType is TypeCharContext)
-            {
-                fieldTypeString = "char";
-            }
-            else if (fieldType is TypeBoolContext)
-            {
-                fieldTypeString = "bool";
-            }
-            else if (fieldType is TypeClassContext classContext)
-            {
-                var className = classContext.className().ID().ToString() ?? throw new NullReferenceException();
-                if (className.Equals("Array"))
-                {
-                    return "int16";
-                }
-                fieldTypeString = $"class {JackDefinitions.JackAssemblyName}.{className}";
-            }
-            else
-            {
-                throw new NotImplementedException(fieldType.GetText());
-            }
-            return fieldTypeString;
-        }
+        
 
 
         private readonly IndentedTextWriter writer;

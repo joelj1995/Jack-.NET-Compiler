@@ -28,17 +28,17 @@ namespace NJackOS.Implementation
 
         public override void dispose()
         {
-            throw new NotImplementedException();
+            JackOSProvider.Memory.deAlloc(start);
         }
 
         public override void eraseLastChar()
         {
-            throw new NotImplementedException();
+            this.curLength--;
         }
 
         public override short intValue()
         {
-            throw new NotImplementedException();
+            return short.Parse(this.ToCLRString());
         }
 
         public override short length()
@@ -53,7 +53,12 @@ namespace NJackOS.Implementation
 
         public override void setInt(short j)
         {
-            throw new NotImplementedException();
+            var targetValue = j.ToString();
+            for (short i = 0; i < targetValue.Length; i++)
+            {
+                setCharAt(i, targetValue[i]);
+            }
+            this.curLength = (short)targetValue.Length;
         }
 
         public override string ToCLRString()

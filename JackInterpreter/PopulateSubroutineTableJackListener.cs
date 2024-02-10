@@ -47,7 +47,16 @@ namespace JackInterpreter
         {
             var subroutineKind = subroutineKinds.Pop();
             var subroutineName = context.subroutineName().ID().ToString()!;
-            subroutineSymbolTable.Define(className, subroutineName, subroutineKind);
+            var paramaters = context.parameterList()!.parameter();
+            var args = new List<string>();
+            for (int i = 0; i < paramaters.Length; i++)
+            {
+                var paramType = paramaters[0].type();
+                string typeString = JackToCLRTranslation.GetFieldTypeString(paramType);
+                args.Add(typeString);
+            }
+            var returnType = context.type()?.GetText() ?? "void";
+            subroutineSymbolTable.Define(className, subroutineName, subroutineKind, args.ToArray(), false, returnType);
         }
 
         private readonly SubroutineSymbolTable subroutineSymbolTable;

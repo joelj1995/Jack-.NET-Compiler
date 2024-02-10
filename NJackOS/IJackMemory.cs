@@ -10,5 +10,6 @@ namespace NJackOS.Interface
         void poke(short address, short value);
         JackArrayClass alloc(short size);
         void deAlloc(JackArrayClass o);
+        void deAlloc(short start);
     }
 }

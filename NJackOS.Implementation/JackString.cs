@@ -9,14 +9,19 @@ namespace NJackOS.Implementation
 {
     internal class JackString : IJackString
     {
+        public JackString()
+        {
+            Console.WriteLine("Jack String initialized.");
+        }
+
         public char backSpace()
         {
-            throw new NotImplementedException();
+            return (char)8;
         }
 
         public char doubleQuote()
         {
-            throw new NotImplementedException();
+            return '"';
         }
 
         public JackStringClass FromCLRString(string value)
@@ -37,7 +42,7 @@ namespace NJackOS.Implementation
 
         public char newLine()
         {
-            throw new NotImplementedException();
+            return '\n';
         }
     }
 }

@@ -14,6 +14,70 @@ internal class Program
 
         var subroutineSymbolTable = new SubroutineSymbolTable();
 
+        subroutineSymbolTable.Define(
+            "class [NJackOS.Interface]NJackOS.Interface.JackStringClass", 
+            "dispose", 
+            SubroutineKind.METHOD, 
+            Array.Empty<string>(), 
+            true, 
+            "void");
+
+        subroutineSymbolTable.Define(
+            "class [NJackOS.Interface]NJackOS.Interface.JackStringClass",
+            "length",
+            SubroutineKind.METHOD,
+            new string[] { },
+            true,
+            "int16");
+
+        subroutineSymbolTable.Define(
+            "class [NJackOS.Interface]NJackOS.Interface.JackStringClass",
+            "charAt",
+            SubroutineKind.METHOD,
+            new string[] { "int16" },
+            true,
+            "char");
+
+        subroutineSymbolTable.Define(
+            "class [NJackOS.Interface]NJackOS.Interface.JackStringClass",
+            "appendChar",
+            SubroutineKind.METHOD,
+            new string[] { "char" },
+            true,
+            "class [NJackOS.Interface]NJackOS.Interface.JackStringClass");
+
+        subroutineSymbolTable.Define(
+            "class [NJackOS.Interface]NJackOS.Interface.JackStringClass",
+            "eraseLastChar",
+            SubroutineKind.METHOD,
+            new string[] { },
+            true,
+            "void");
+
+        subroutineSymbolTable.Define(
+            "class [NJackOS.Interface]NJackOS.Interface.JackStringClass",
+            "intValue",
+            SubroutineKind.METHOD,
+            new string[] { },
+            true,
+            "int16");
+
+        subroutineSymbolTable.Define(
+            "class [NJackOS.Interface]NJackOS.Interface.JackStringClass",
+            "setInt",
+            SubroutineKind.METHOD,
+            new string[] { "int16" },
+            true,
+            "void");
+
+        subroutineSymbolTable.Define(
+            "class [NJackOS.Interface]NJackOS.Interface.JackStringClass",
+            "setCharAt",
+            SubroutineKind.METHOD,
+            new string[] { "int16", "char" },
+            true,
+            "void");
+
         var walker = new ParseTreeWalker();
         var sourceTrees = new List<IParseTree>();
         foreach (var inputFilePath in Directory.GetFiles(inputPath))
