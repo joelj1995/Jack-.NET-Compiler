@@ -52,7 +52,9 @@ statement:
 	| returnStatement	# StatementForReturn;
 
 letStatement:
-	'let' varName ('[' expression ']')? '=' expression ';';
+	'let' varName (letStatementArrayIndex)? '=' expression ';';
+
+letStatementArrayIndex: '[' expression ']';
 
 ifStatement:
 	'if' '(' expression ')' '{' ifBody '}' (

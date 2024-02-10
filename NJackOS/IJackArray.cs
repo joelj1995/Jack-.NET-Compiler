@@ -7,6 +7,6 @@ namespace NJackOS.Interface
     public interface IJackArray
     {
         JackArrayClass FromCLRShort(short value);
-        JackArrayClass New(short size);
+        short New(short size);
     }
 }

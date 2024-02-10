@@ -5,6 +5,7 @@ using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Reflection.Emit;
 using System.Reflection.Metadata;
 using System.Text;
@@ -52,28 +53,7 @@ namespace JackInterpreter
 
             }
             var fieldType = context.type();
-            var fieldTypeString = "UNKNOWN";
-            if (fieldType is TypeIntContext)
-            {
-                fieldTypeString = "int16";
-            }
-            else if (fieldType is TypeCharContext)
-            {
-                fieldTypeString = "char";
-            }
-            else if (fieldType is TypeBoolContext)
-            {
-                fieldTypeString = "bool";
-            }
-            else if (fieldType is TypeClassContext classContext)
-            {
-                var className = classContext.className().ID().ToString() ?? throw new NullReferenceException();
-                fieldTypeString = $"class {JackDefinitions.JackAssemblyName}.{className}";
-            }
-            else
-            {
-                throw new NotImplementedException(fieldType.GetText());
-            }
+            var fieldTypeString = GetFieldTypeString(fieldType);
 
             foreach (var field in context.varName())
             {
@@ -121,30 +101,10 @@ namespace JackInterpreter
             var paramaters = context.parameter();
             for (int i = 0; i < paramaters.Length; i++)
             {
-                string typeString;
+                
                 string paramName = paramaters[i].varName().ID().ToString() ?? throw new NullReferenceException();
                 var paramType = paramaters[0].type();
-                if (paramType is TypeIntContext)
-                {
-                    typeString = "int16";
-                }
-                else if (paramType is TypeCharContext)
-                {
-                    typeString = "char";
-                }
-                else if (paramType is TypeBoolContext)
-                {
-                    typeString = "bool";
-                }
-                else if (paramType is TypeClassContext classContext)
-                {
-                    var className = classContext.className().ID().ToString() ?? throw new NullReferenceException();
-                    typeString = $"class {JackDefinitions.JackAssemblyName}.{className}";
-                }
-                else
-                {
-                    throw new NotImplementedException(paramType.GetText());
-                }
+                string typeString = GetFieldTypeString(paramType);
                 var separator = (i + 1 == paramaters.Length) ? "" : ",";
                 writer.WriteLine($"{typeString} {paramName}{separator}");
                 dataSymbolTable.Define(paramName, typeString, SymbolKind.ARG);
@@ -168,28 +128,7 @@ namespace JackInterpreter
             foreach (var varDecContext in context.varDec())
             {
                 var fieldType = varDecContext.type();
-                var fieldTypeString = "UNKNOWN";
-                if (fieldType is TypeIntContext)
-                {
-                    fieldTypeString = "int16";
-                }
-                else if (fieldType is TypeCharContext)
-                {
-                    fieldTypeString = "char";
-                }
-                else if (fieldType is TypeBoolContext)
-                {
-                    fieldTypeString = "bool";
-                }
-                else if (fieldType is TypeClassContext classContext)
-                {
-                    var className = classContext.className().ID().ToString() ?? throw new NullReferenceException();
-                    fieldTypeString = $"class {JackDefinitions.JackAssemblyName}.{className}";
-                }
-                else
-                {
-                    throw new NotImplementedException(fieldType.GetText());
-                }
+                var fieldTypeString = GetFieldTypeString(fieldType);
 
                 var varNames = varDecContext.varName();
                 for (int i = 0; i < varNames.Length; i++)
@@ -207,13 +146,15 @@ namespace JackInterpreter
             writer.WriteLine(")");
         }
 
+        
+
         public override void ExitSubroutineBody([NotNull] SubroutineBodyContext context)
         {
             writer.WriteLine("ret");
             writer.Indent--;
             writer.WriteLine("}");
             subroutineNames.Pop();
-    }
+        }
 
         public override void EnterIfStatement([NotNull] IfStatementContext context)
         {
@@ -234,11 +175,53 @@ namespace JackInterpreter
             writer.WriteLine($"IF_ELSE_{lastCookie}:");
         }
 
+        public override void ExitLetStatementArrayIndex([NotNull] LetStatementArrayIndexContext context)
+        {
+
+        }
+
+        public override void EnterLetStatement([NotNull] LetStatementContext context)
+        {
+            writer.WriteLine("// " + context.GetText());
+            var varName = context.varName().ID().ToString() ?? throw new NullReferenceException();
+            var index = dataSymbolTable.IndexOf(varName);
+            if (context.letStatementArrayIndex() is not null)
+            {
+                writer.WriteLine("call class [NJackOS.Interface]NJackOS.Interface.IJackArray [NJackOS.Interface]NJackOS.Interface.JackOSProvider::get_Array()");
+                string op;
+                switch (dataSymbolTable.KindOf(varName))
+                {
+                    case SymbolKind.ARG:
+                        op = "ldarg";
+                        writer.WriteLine($"{op}.{index}");
+                        break;
+                    case SymbolKind.VAR:
+                        op = "ldloc";
+                        writer.WriteLine($"{op}.{index}");
+                        break;
+                    case SymbolKind.FIELD:
+                        writer.WriteLine($"ldfld {dataSymbolTable.TypeOf(varName)} {JackDefinitions.JackAssemblyName}.{className}::{varName}");
+                        break;
+                    default:
+                        throw new NotImplementedException();
+                }
+                writer.WriteLine("callvirt instance class [NJackOS.Interface]NJackOS.Interface.JackArrayClass [NJackOS.Interface]NJackOS.Interface.IJackArray::FromCLRShort(int16)");
+                
+            }
+        }
+
         public override void ExitLetStatement([NotNull] LetStatementContext context)
         {
             var varName = context.varName().ID().ToString() ?? throw new NullReferenceException();
             var index = dataSymbolTable.IndexOf(varName);
-            string op;
+
+            var arrayIndexContext = context.letStatementArrayIndex();
+            if (arrayIndexContext is not null)
+            {
+                writer.WriteLine("callvirt instance void [NJackOS.Interface]NJackOS.Interface.JackObject::set_Item(int16, int16)");
+                return;
+            }
+
             switch (dataSymbolTable.KindOf(varName))
             {
                 case SymbolKind.ARG:
@@ -270,6 +253,7 @@ namespace JackInterpreter
 
         public override void EnterThatMethod([NotNull] ThatMethodContext context)
         {
+            writer.WriteLine("// " + context.GetText());
             var lhs = context.className()?.ID()?.ToString() ??
                 context.varName()?.ID()?.ToString() ??
                 throw new NullReferenceException("lhs");
@@ -280,6 +264,10 @@ namespace JackInterpreter
             else if (lhs.Equals("Screen"))
             {
                 writer.WriteLine("call class [NJackOS.Interface]NJackOS.Interface.IJackScreen [NJackOS.Interface]NJackOS.Interface.JackOSProvider::get_Screen()");
+            }
+            else if (lhs.Equals("Array"))
+            {
+                writer.WriteLine("call class [NJackOS.Interface]NJackOS.Interface.IJackArray [NJackOS.Interface]NJackOS.Interface.JackOSProvider::get_Array()");
             }
         }
 
@@ -339,6 +327,15 @@ namespace JackInterpreter
                         break;
                     default:
                         throw new NotImplementedException(rhs);
+                }
+            }
+            else if (lhs.Equals("Array"))
+            {
+                switch (rhs)
+                {
+                    case "new":
+                        writer.WriteLine("callvirt instance int16 [NJackOS.Interface]NJackOS.Interface.IJackArray::New(int16)");
+                        break;
                 }
             }
         }
@@ -440,6 +437,67 @@ namespace JackInterpreter
             {
                 throw new NotImplementedException(unaryOp.GetText());
             }
+        }
+
+        public override void EnterTermArrayIndex([NotNull] TermArrayIndexContext context)
+        {
+            var varName = context.varName().ID().ToString() ?? throw new NullReferenceException();
+            var index = dataSymbolTable.IndexOf(varName);
+            writer.WriteLine("call class [NJackOS.Interface]NJackOS.Interface.IJackArray [NJackOS.Interface]NJackOS.Interface.JackOSProvider::get_Array()");
+            string op;
+            switch (dataSymbolTable.KindOf(varName))
+            {
+                case SymbolKind.ARG:
+                    op = "ldarg";
+                    writer.WriteLine($"{op}.{index}");
+                    break;
+                case SymbolKind.VAR:
+                    op = "ldloc";
+                    writer.WriteLine($"{op}.{index}");
+                    break;
+                case SymbolKind.FIELD:
+                    writer.WriteLine($"ldfld {dataSymbolTable.TypeOf(varName)} {JackDefinitions.JackAssemblyName}.{className}::{varName}");
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
+            writer.WriteLine("callvirt instance class [NJackOS.Interface]NJackOS.Interface.JackArrayClass [NJackOS.Interface]NJackOS.Interface.IJackArray::FromCLRShort(int16)");
+        }
+
+        public override void ExitTermArrayIndex([NotNull] TermArrayIndexContext context)
+        {
+            writer.WriteLine("callvirt instance int16 [NJackOS.Interface]NJackOS.Interface.JackObject::get_Item(int16)");
+        }
+
+        private string GetFieldTypeString(TypeContext fieldType)
+        {
+            string fieldTypeString;
+            if (fieldType is TypeIntContext)
+            {
+                fieldTypeString = "int16";
+            }
+            else if (fieldType is TypeCharContext)
+            {
+                fieldTypeString = "char";
+            }
+            else if (fieldType is TypeBoolContext)
+            {
+                fieldTypeString = "bool";
+            }
+            else if (fieldType is TypeClassContext classContext)
+            {
+                var className = classContext.className().ID().ToString() ?? throw new NullReferenceException();
+                if (className.Equals("Array"))
+                {
+                    return "int16";
+                }
+                fieldTypeString = $"class {JackDefinitions.JackAssemblyName}.{className}";
+            }
+            else
+            {
+                throw new NotImplementedException(fieldType.GetText());
+            }
+            return fieldTypeString;
         }
 
 

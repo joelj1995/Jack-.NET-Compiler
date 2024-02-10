@@ -9,7 +9,7 @@ internal class Program
 {
     private static void Main(string[] args)
     {
-        var inputPath = @"C:\Users\colte\Downloads\project_12\OutputTest";
+        var inputPath = @"C:\Users\colte\Downloads\project_12\ArrayTest\";
         var outputFilePath = @"C:\Jack\Jack.il";
 
         var subroutineSymbolTable = new SubroutineSymbolTable();

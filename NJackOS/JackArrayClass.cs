@@ -8,12 +8,9 @@ namespace NJackOS.Interface
     {
         public short Start => start;
 
-        public JackArrayClass(short size, short start) : base(start)
+        public JackArrayClass(short start) : base(start)
         {
-            this.size = size;
         }
 
-        
-        protected readonly short size;
     }
 }

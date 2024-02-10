@@ -20,7 +20,7 @@ namespace NJackOS.Implementation
             if (free + size > maxMem)
                 throw new Exception("Out of memory.");
             free = (short)(free + size);
-            return new JackArrayImplementation(size, result);
+            return new JackArrayImplementation(result);
         }
 
         public void deAlloc(Interface.JackArrayClass o)

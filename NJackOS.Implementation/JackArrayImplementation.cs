@@ -9,7 +9,7 @@ namespace NJackOS.Implementation
 {
     internal class JackArrayImplementation : Interface.JackArrayClass
     {
-        public JackArrayImplementation(short size, short length) : base(size, length)
+        public JackArrayImplementation(short start) : base(start)
         {
 
         }

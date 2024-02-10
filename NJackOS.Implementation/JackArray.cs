@@ -11,14 +11,14 @@ namespace NJackOS.Implementation
     {
         public JackArrayClass FromCLRShort(short value)
         {
-            var result = this.New(1);
+            var result = new JackArrayImplementation(value);
             result[0] = value;
             return result;
         }
 
-        public JackArrayClass New(short size)
+        public short New(short size)
         {
-            return JackOSProvider.Memory.alloc(size);
+            return JackOSProvider.Memory.alloc(size).Start;
         }
     }
 }
