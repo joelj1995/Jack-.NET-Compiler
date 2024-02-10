@@ -12,7 +12,6 @@ namespace NJackOS.Implementation
         public JackArrayClass FromCLRShort(short value)
         {
             var result = new JackArrayImplementation(value);
-            result[0] = value;
             return result;
         }
 
