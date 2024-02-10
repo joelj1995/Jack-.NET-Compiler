@@ -23,10 +23,12 @@ namespace NJackOS.Implementation
 
         public void clearScreen()
         {
+            internals.clearScreen();
         }
 
         public void drawCircle(short cx, short cy, short r)
         {
+            internals.drawCircle(cx, cy, r, color);
         }
 
         public void drawLine(short x1, short x2, short y1, short y2)
@@ -41,6 +43,7 @@ namespace NJackOS.Implementation
 
         public void drawRectangle(short x1, short x2, short y1, short y2)
         {
+            internals.drawRectangle(x1, x2, y1, y2, color);
         }
 
         public void setColor(bool b)
@@ -49,6 +52,6 @@ namespace NJackOS.Implementation
         }
 
         private JackStreenInternal internals;
-        private bool color = false;
+        private bool color = true;
     }
 }

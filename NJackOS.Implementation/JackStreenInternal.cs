@@ -39,7 +39,6 @@ namespace NJackOS.Implementation
             Canvas myCanvas = new Canvas();
             myCanvas.Background = Brushes.White;
 
-
             mainWindow.Height = 256;
             mainWindow.Width = 512;
 
@@ -52,7 +51,7 @@ namespace NJackOS.Implementation
             myCanvas.Focusable = true;
             using (writeableBitmap.GetBitmapContext())
             {
-                writeableBitmap.Clear(Colors.Black);
+                writeableBitmap.Clear(Colors.White);
             }
 
             mainWindow.Content = myCanvas;
@@ -61,13 +60,35 @@ namespace NJackOS.Implementation
             return mainWindow;
         }
 
+        public void clearScreen()
+        {
+            app.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                using (writeableBitmap.GetBitmapContext())
+                {
+                    writeableBitmap.Clear(Colors.White);
+                }
+            }));
+        }
+
+        public void drawCircle(short cx, short cy, short r, bool color)
+        {
+            app.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                using (writeableBitmap.GetBitmapContext())
+                {
+                    writeableBitmap.FillEllipseCentered(cx, cy, r, r, color ? Colors.Black : Colors.White);
+                }
+            }));
+        }
+
         public void drawPixel(short x, short y, bool color)
         {
             app.Dispatcher.BeginInvoke(new Action(() =>
             {
                 using (writeableBitmap.GetBitmapContext())
                 {
-                    writeableBitmap.SetPixel(x, y, color ? Colors.White : Colors.Black);
+                    writeableBitmap.SetPixel(x, y, color ? Colors.Black : Colors.White);
                 }
             }));
         }
@@ -78,7 +99,19 @@ namespace NJackOS.Implementation
             {
                 using (writeableBitmap.GetBitmapContext())
                 {
-                    writeableBitmap.DrawLine(x1, x2, y1, y2, color ? Colors.White : Colors.Black);
+                    writeableBitmap.DrawLine(x1, x2, y1, y2, color ? Colors.Black : Colors.White);
+                }
+            }));
+        }
+
+        public void drawRectangle(short x1, short y1, short x2, short y2, bool color)
+        {
+            Console.WriteLine($"{x1} {x2} {y1} {y2}");
+            app.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                using (writeableBitmap.GetBitmapContext())
+                {
+                    writeableBitmap.FillRectangle(x1, y1, x2, y2, color ? Colors.Black : Colors.White);
                 }
             }));
         }
