@@ -51,9 +51,14 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="JackArray.cs" />
+    <Compile Include="JackArrayImplementation.cs" />
+    <Compile Include="JackMemory.cs" />
     <Compile Include="JackOutput.cs" />
     <Compile Include="JackScreen.cs" />
     <Compile Include="JackStreenInternal.cs" />
+    <Compile Include="JackString.cs" />
+    <Compile Include="JackStringClassImplementation.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
