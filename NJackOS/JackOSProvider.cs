@@ -8,7 +8,7 @@ namespace NJackOS.Interface
 {
     public class JackOSProvider 
     {
-        public char CurrentKey => currentKeyListener.CurrentKey;
+        public static char CurrentKey => currentKeyListener.CurrentKey;
 
         public static IJackOutput Output
         {

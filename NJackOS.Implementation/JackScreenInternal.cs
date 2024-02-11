@@ -126,9 +126,66 @@ namespace NJackOS.Implementation
 
         private void OnKeyDownHandler(object sender, KeyEventArgs e)
         {
+            char c;
+            if (e.Key >= Key.D0 && e.Key <= Key.D9)
+                c = (e.Key - Key.D0).ToString()[0];
+            else if (e.Key.Equals(Key.OemMinus))
+                c = '-';
+            else if (e.Key.Equals(Key.Enter))
+                c = '\n';
+            else if (e.Key.Equals(Key.Back))
+                c = (char)8;
+            else if (e.Key.Equals(Key.Left))
+                c = (char)130;
+            else if (e.Key.Equals(Key.Right))
+                c = (char)132;
+            else if (e.Key.Equals(Key.Up))
+                c = (char)131;
+            else if (e.Key.Equals(Key.Down))
+                c = (char)133;
+            else if (e.Key.Equals(Key.Home))
+                c = (char)134;
+            else if (e.Key.Equals(Key.End))
+                c = (char)135;
+            else if (e.Key.Equals(Key.PageUp))
+                c = (char)136;
+            else if (e.Key.Equals(Key.PageDown))
+                c = (char)137;
+            else if (e.Key.Equals(Key.Insert))
+                c = (char)138;
+            else if (e.Key.Equals(Key.Delete))
+                c = (char)139;
+            else if (e.Key.Equals(Key.Escape))
+                c = (char)140;
+            else if (e.Key.Equals(Key.F1))
+                c = (char)141;
+            else if (e.Key.Equals(Key.F2))
+                c = (char)142;
+            else if (e.Key.Equals(Key.F3))
+                c = (char)143;
+            else if (e.Key.Equals(Key.F4))
+                c = (char)144;
+            else if (e.Key.Equals(Key.F5))
+                c = (char)145;
+            else if (e.Key.Equals(Key.F6))
+                c = (char)146;
+            else if (e.Key.Equals(Key.F7))
+                c = (char)147;
+            else if (e.Key.Equals(Key.F8))
+                c = (char)148;
+            else if (e.Key.Equals(Key.F9))
+                c = (char)149;
+            else if (e.Key.Equals(Key.F10))
+                c = (char)150;
+            else if (e.Key.Equals(Key.F11))
+                c = (char)151;
+            else if (e.Key.Equals(Key.F12))
+                c = (char)151;
+            else
+                c = e.Key.ToString()[0];
             foreach (var observer in observers)
             {
-                observer.OnCurrentKeyChanged(e.Key.ToString()[0]);
+                observer.OnCurrentKeyChanged(c);
             };
         }
 
