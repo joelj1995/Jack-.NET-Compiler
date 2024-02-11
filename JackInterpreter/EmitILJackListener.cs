@@ -137,7 +137,6 @@ namespace JackInterpreter
                     var separator = (i + 1 == varNames.Length && j + 1 == context.varDec().Length) ? "" : ",";
                     writer.WriteLine($"[{p}] {fieldTypeString} {varNameString}{separator}");
                     dataSymbolTable.Define(varNameString, fieldTypeString, SymbolKind.VAR);
-                    
                     p++;
                 }
                 j++;
@@ -175,6 +174,37 @@ namespace JackInterpreter
             writer.WriteLine($"IF_ELSE_{lastCookie}:");
         }
 
+        public override void EnterElseBody([NotNull] ElseBodyContext context)
+        {
+            base.EnterElseBody(context);
+        }
+
+        public override void ExitIfStatement([NotNull] IfStatementContext context)
+        {
+            var lastCookie = intCookieStack.Pop();
+            writer.WriteLine($"IF_EXIT_{lastCookie}:");
+        }
+
+        public override void EnterWhileStatement([NotNull] WhileStatementContext context)
+        {
+            var nextCookie = ifCookie++;
+            intCookieStack.Push(nextCookie);
+            writer.WriteLine($"WHILE_ENTER_{nextCookie}:");
+        }
+
+        public override void EnterWhileBody([NotNull] WhileBodyContext context)
+        {
+            var nextCookie = intCookieStack.Peek();
+            writer.WriteLine($"brfalse WHILE_EXIT_{nextCookie}");
+        }
+
+        public override void ExitWhileBody([NotNull] WhileBodyContext context)
+        {
+            var lastCookie = intCookieStack.Pop();
+            writer.WriteLine($"br WHILE_ENTER_{lastCookie}");
+            writer.WriteLine($"WHILE_EXIT_{lastCookie}:");
+        }
+
         public override void ExitLetStatementArrayIndex([NotNull] LetStatementArrayIndexContext context)
         {
 
@@ -196,8 +226,8 @@ namespace JackInterpreter
                         writer.WriteLine($"{op}.{index}");
                         break;
                     case SymbolKind.VAR:
-                        op = "ldloc";
-                        writer.WriteLine($"{op}.{index}");
+                        op = "ldloc.s";
+                        writer.WriteLine($"{op} {index}");
                         break;
                     case SymbolKind.FIELD:
                         writer.WriteLine($"ldfld {dataSymbolTable.TypeOf(varName)} {JackDefinitions.JackAssemblyName}.{className}::{varName}");
@@ -238,19 +268,6 @@ namespace JackInterpreter
             }
         }
 
-        public override void EnterElseBody([NotNull] ElseBodyContext context)
-        {
-            base.EnterElseBody(context);
-        }
-
-        public override void ExitIfStatement([NotNull] IfStatementContext context)
-        {
-            var lastCookie = intCookieStack.Pop();
-            writer.WriteLine($"IF_EXIT_{lastCookie}:");
-        }
-
-
-
         public override void EnterThatMethod([NotNull] ThatMethodContext context)
         {
             writer.WriteLine("// " + context.GetText());
@@ -273,6 +290,10 @@ namespace JackInterpreter
             {
                 writer.WriteLine("call class [NJackOS.Interface]NJackOS.Interface.IJackString [NJackOS.Interface]NJackOS.Interface.JackOSProvider::get_String()");
             }
+            else if (lhs.Equals("Keyboard"))
+            {
+                writer.WriteLine("call class [NJackOS.Interface]NJackOS.Interface.IJackKeyboard [NJackOS.Interface]NJackOS.Interface.JackOSProvider::get_Keyboard()");
+            }
             else
             {
                 string op;
@@ -284,8 +305,8 @@ namespace JackInterpreter
                         writer.WriteLine($"{op}.{index}");
                         break;
                     case SymbolKind.VAR:
-                        op = "ldloc";
-                        writer.WriteLine($"{op}.{index}");
+                        op = "ldloc.s";
+                        writer.WriteLine($"{op} {index}");
                         break;
                     case SymbolKind.FIELD:
                         writer.WriteLine($"ldfld {dataSymbolTable.TypeOf(lhs)} {JackDefinitions.JackAssemblyName}.{className}::{lhs}");
@@ -361,6 +382,8 @@ namespace JackInterpreter
                     case "new":
                         writer.WriteLine("callvirt instance int16 [NJackOS.Interface]NJackOS.Interface.IJackArray::New(int16)");
                         break;
+                    default:
+                        throw new NotImplementedException(rhs);
                 }
             }
             else if (lhs.Equals("String"))
@@ -379,6 +402,28 @@ namespace JackInterpreter
                     case "newLine":
                         writer.WriteLine("callvirt instance char [NJackOS.Interface]NJackOS.Interface.IJackString::newLine()");
                         break;
+                    default:
+                        throw new NotImplementedException(rhs);
+                }
+            }
+            else if (lhs.Equals("Keyboard"))
+            {
+                switch (rhs)
+                {
+                    case "keyPressed":
+                        writer.WriteLine("callvirt instance char [NJackOS.Interface]NJackOS.Interface.IJackKeyboard::keyPressed()");
+                        break;
+                    case "readChar":
+                        writer.WriteLine("callvirt instance char [NJackOS.Interface]NJackOS.Interface.IJackKeyboard::readChar()");
+                        break;
+                    case "readLine":
+                        writer.WriteLine("callvirt instance class [NJackOS.Interface]NJackOS.Interface.JackStringClass [NJackOS.Interface]NJackOS.Interface.IJackKeyboard::readLine(class [NJackOS.Interface]NJackOS.Interface.JackStringClass)");
+                        break;
+                    case "readInt":
+                        writer.WriteLine("callvirt instance int16 [NJackOS.Interface]NJackOS.Interface.IJackKeyboard::readInt(class [NJackOS.Interface]NJackOS.Interface.JackStringClass)");
+                        break;
+                    default:
+                        throw new NotImplementedException(rhs);
                 }
             }
             else
@@ -422,9 +467,11 @@ namespace JackInterpreter
             {
                 case SymbolKind.ARG:
                     op = "ldarg";
+                    writer.WriteLine($"{op}.{index}");
                     break;
                 case SymbolKind.VAR:
-                    op = "ldloc";
+                    op = "ldloc.s";
+                    writer.WriteLine($"{op} {index}");
                     break;
                 case SymbolKind.FIELD:
                     writer.WriteLine($"ldfld {dataSymbolTable.TypeOf(varName)} {JackDefinitions.JackAssemblyName}.{className}::{varName}");
@@ -432,7 +479,6 @@ namespace JackInterpreter
                 default:
                     throw new NotImplementedException(dataSymbolTable.KindOf(varName).ToString());
             }
-            writer.WriteLine($"{op}.{index}");
         }
 
         public override void ExitBinaryOp([NotNull] BinaryOpContext context)
@@ -503,8 +549,8 @@ namespace JackInterpreter
                     writer.WriteLine($"{op}.{index}");
                     break;
                 case SymbolKind.VAR:
-                    op = "ldloc";
-                    writer.WriteLine($"{op}.{index}");
+                    op = "ldloc.s";
+                    writer.WriteLine($"{op} {index}");
                     break;
                 case SymbolKind.FIELD:
                     writer.WriteLine($"ldfld {dataSymbolTable.TypeOf(varName)} {JackDefinitions.JackAssemblyName}.{className}::{varName}");

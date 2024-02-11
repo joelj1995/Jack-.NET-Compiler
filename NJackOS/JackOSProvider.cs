@@ -68,6 +68,18 @@ namespace NJackOS.Interface
             }
         }
 
+        public static IJackKeyboard Keyboard
+        {
+            get
+            {
+                if (jackKeyboard != null) return jackKeyboard;
+
+                jackKeyboard = GetProvider<IJackKeyboard>();
+
+                return jackKeyboard;
+            }
+        }
+
         private static T GetProvider<T>()
         {
             if (!loaded)
@@ -96,6 +108,7 @@ namespace NJackOS.Interface
         private static IJackMemory jackMemory;
         private static IJackArray jackArray;
         private static IJackString jackString;
+        private static IJackKeyboard jackKeyboard;
         private static bool loaded = false;
     }
 }

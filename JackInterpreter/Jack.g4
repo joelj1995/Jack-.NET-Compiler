@@ -64,7 +64,8 @@ ifStatement:
 ifBody: statements;
 elseBody: statements;
 
-whileStatement: 'while' '(' expression ')' '{' statements '}';
+whileStatement: 'while' '(' expression ')' '{' whileBody '}';
+whileBody: statements;
 
 doStatement: 'do' subroutineCall ';';
 
