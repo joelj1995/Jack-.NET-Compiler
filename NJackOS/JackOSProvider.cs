@@ -6,8 +6,10 @@ using System.Text;
 
 namespace NJackOS.Interface
 {
-    public class JackOSProvider
+    public class JackOSProvider 
     {
+        public char CurrentKey => currentKeyListener.CurrentKey;
+
         public static IJackOutput Output
         {
             get
@@ -79,11 +81,22 @@ namespace NJackOS.Interface
                 return jackKeyboard;
             }
         }
-
+        
         private static T GetProvider<T>()
         {
+            /*
+             * Load the OS implementation and instantiate underlying objects with reflection.
+             * 
+             * Some standard dependency injection tooling could probably do this better,
+             * but it gets the job done well enough.
+             */
+
             if (!loaded)
             {
+                /*
+                 * In theory, this could be decoupled better by reading this name in as a configuration
+                 * item from the environment variables or file system.
+                 */
                 Assembly.Load("NJackOS.Implementation");
                 loaded = true;
             }
@@ -95,13 +108,26 @@ namespace NJackOS.Interface
                 if (assignable != null)
                 {
                     var result = (T)Activator.CreateInstance(assignable);
+
+                    if (typeof(ICurrentKeyObservable).IsAssignableFrom(assignable))
+                    {
+                        /*
+                         * In the current implementation, this happens to be a shared
+                         * concern with the IJackScreen provider. But ideally, JackOSProvider
+                         * shouldn't have to have any knowledge of this. Again, some
+                         * standard DI tooling could handle this more cleanly.
+                         */
+                        Console.WriteLine("Jack Current Key provider found.");
+                        var keyObservable = (ICurrentKeyObservable)result;
+                        keyObservable.Subscribe(currentKeyListener);
+                    }
+
                     return result;
                 }
             }
 
             throw new ApplicationException($"{typeof(T)} is not implemented.");
         }
-
 
         private static IJackOutput jackOutput;
         private static IJackScreen jackScreen;
@@ -110,5 +136,6 @@ namespace NJackOS.Interface
         private static IJackString jackString;
         private static IJackKeyboard jackKeyboard;
         private static bool loaded = false;
+        private static CurrentKeyListener currentKeyListener = new CurrentKeyListener();
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NJackOS.Interface;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,11 +14,11 @@ using System.Windows.Media.Imaging;
 
 namespace NJackOS.Implementation
 {
-    internal class JackStreenInternal
+    internal class JackScreenInternal : ICurrentKeyObservable
     {
         public bool Started { get; private set; } = false;
 
-        public JackStreenInternal()
+        public JackScreenInternal()
         {
 
         }
@@ -54,9 +55,12 @@ namespace NJackOS.Implementation
                 writeableBitmap.Clear(Colors.White);
             }
 
+            myCanvas.KeyDown += new KeyEventHandler(OnKeyDownHandler);
+            myCanvas.KeyUp += new KeyEventHandler(OnKeyUpHandler);
+
             mainWindow.Content = myCanvas;
             myCanvas.Focus();
-            mainWindow.Title = "Canvas Sample";
+            mainWindow.Title = "Hack System Display";
             return mainWindow;
         }
 
@@ -115,8 +119,29 @@ namespace NJackOS.Implementation
             }));
         }
 
+        public void Subscribe(ICurrentKeyObserver observer)
+        {
+            this.observers.Add(observer);
+        }
+
+        private void OnKeyDownHandler(object sender, KeyEventArgs e)
+        {
+            foreach (var observer in observers)
+            {
+                observer.OnCurrentKeyChanged(e.Key.ToString()[0]);
+            };
+        }
+
+        private void OnKeyUpHandler(object sender, KeyEventArgs e)
+        {
+            foreach (var observer in observers)
+            {
+                observer.OnCurrentKeyChanged('\0');
+            };
+        }
+
         private WriteableBitmap writeableBitmap;
         private Application app;
-        
+        private HashSet<ICurrentKeyObserver> observers = new HashSet<ICurrentKeyObserver>();
     }
 }

@@ -6,11 +6,12 @@ using System.Threading;
 
 namespace NJackOS.Implementation
 {
-    internal class JackScreen : IJackScreen
+    internal class JackScreen : IJackScreen, ICurrentKeyObservable, ICurrentKeyObserver
     {
         public JackScreen() 
         {
-            internals = new JackStreenInternal();
+            internals = new JackScreenInternal();
+            internals.Subscribe(this);
             Thread t = new Thread(new ThreadStart(internals.StartNewThread));
             t.SetApartmentState(ApartmentState.STA);
             t.Start();
@@ -51,7 +52,21 @@ namespace NJackOS.Implementation
             this.color = b;
         }
 
-        private JackStreenInternal internals;
+        public void Subscribe(ICurrentKeyObserver observer)
+        {
+            this.observers.Add(observer);
+        }
+
+        public void OnCurrentKeyChanged(char key)
+        {
+            foreach (var observer in observers)
+            {
+                observer.OnCurrentKeyChanged(key);
+            };
+        }
+
+        private JackScreenInternal internals;
         private bool color = true;
+        private HashSet<ICurrentKeyObserver> observers = new HashSet<ICurrentKeyObserver>();
     }
 }

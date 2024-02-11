@@ -57,7 +57,7 @@
     <Compile Include="JackMemory.cs" />
     <Compile Include="JackOutput.cs" />
     <Compile Include="JackScreen.cs" />
-    <Compile Include="JackStreenInternal.cs" />
+    <Compile Include="JackScreenInternal.cs" />
     <Compile Include="JackString.cs" />
     <Compile Include="JackStringClassImplementation.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

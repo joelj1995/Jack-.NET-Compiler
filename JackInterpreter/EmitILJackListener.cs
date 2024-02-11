@@ -16,6 +16,24 @@ namespace JackInterpreter
 {
     internal class EmitILJackListener : JackBaseListener
     {
+        /*
+         * This is the heart of the compiler, but has kind of turned into a hot mess.
+         * The following refactorings would help bring some more order to this code:
+         * 
+         * 1 - Move IL generation out into its own set of classes that hide all the string 
+         * manipulation nastiness
+         * 
+         * 2 - Break out duplicated switch statements into methods.
+         * 
+         * 3 - Break this up into partial classes that handle different concerns (expressions,
+         * statements, declarations, subroutine bodies)
+         * 
+         * 4 - Decide on a sane way to order methods within the class.
+         * 
+         * 5 - Define all the metadata needed to link to NJackOS in another class so that a loop
+         * can be used instead of the long if/elif chain.
+         */
+
         public EmitILJackListener(IndentedTextWriter outputStream, SubroutineSymbolTable subroutineSymbolTable) : base()
         {
             this.writer = outputStream;
