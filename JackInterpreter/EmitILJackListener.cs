@@ -528,7 +528,8 @@ namespace JackInterpreter
             }
             else if (unaryOp is UnaryOpNotContext)
             {
-                writer.WriteLine("not");
+                writer.WriteLine("ldc.i4.0");
+                writer.WriteLine("ceq");
             }
             else
             {
