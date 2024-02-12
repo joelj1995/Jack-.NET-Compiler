@@ -54,6 +54,7 @@
     <Compile Include="JackArray.cs" />
     <Compile Include="JackArrayImplementation.cs" />
     <Compile Include="JackKeyboard.cs" />
+    <Compile Include="JackMath.cs" />
     <Compile Include="JackMemory.cs" />
     <Compile Include="JackOutput.cs" />
     <Compile Include="JackScreen.cs" />

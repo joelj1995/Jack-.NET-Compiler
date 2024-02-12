@@ -81,7 +81,19 @@ namespace NJackOS.Interface
                 return jackKeyboard;
             }
         }
-        
+
+        public static IJackMath JMath
+        {
+            get
+            {
+                if (jackMath != null) return jackMath;
+
+                jackMath = GetProvider<IJackMath>();
+
+                return jackMath;
+            }
+        }
+
         private static T GetProvider<T>()
         {
             /*
@@ -135,6 +147,7 @@ namespace NJackOS.Interface
         private static IJackArray jackArray;
         private static IJackString jackString;
         private static IJackKeyboard jackKeyboard;
+        private static IJackMath jackMath;
         private static bool loaded = false;
         private static CurrentKeyListener currentKeyListener = new CurrentKeyListener();
     }

@@ -56,6 +56,7 @@ namespace NJackOS.Implementation
                     if (str.length() > 0)
                     {
                         str.eraseLastChar();
+                        JackOSProvider.Output.backSpace();
                     }
                 }
                 else
