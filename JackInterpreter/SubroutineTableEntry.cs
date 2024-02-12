@@ -15,7 +15,7 @@ namespace JackInterpreter
         public string ReturnType { get; private set; }
         public bool IsVirtual { get; private set; }
 
-        public SubroutineTableEntry(SubroutineKind kind, string name, string[] args, bool isVirtual, string returnType = "void")
+        public SubroutineTableEntry(SubroutineKind kind, string name, string[] args, bool isVirtual, string returnType)
         {
             this.Kind = kind;
             this.Name = name;

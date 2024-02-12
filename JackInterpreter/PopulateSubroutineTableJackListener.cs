@@ -55,7 +55,7 @@ namespace JackInterpreter
                 string typeString = JackToCLRTranslation.GetFieldTypeString(paramType);
                 args.Add(typeString);
             }
-            var returnType = context.type()?.GetText() ?? "void";
+            var returnType = JackToCLRTranslation.GetFieldTypeString(context.type());
             subroutineSymbolTable.Define($"class {JackDefinitions.JackAssemblyName}.{className}", subroutineName, subroutineKind, args.ToArray(), false, returnType);
         }
 

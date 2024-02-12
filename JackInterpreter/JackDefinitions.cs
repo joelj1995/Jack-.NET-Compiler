@@ -21,5 +21,6 @@ namespace JackInterpreter
     internal static class JackDefinitions
     {
         public const string JackAssemblyName = "JackExecutable";
+        public static string[] PrimitiveCLRTypes => new string[] { "int", "void", "char", "bool" };
     }
 }

@@ -89,6 +89,7 @@ namespace JackInterpreter
             string subroutineName = context.subroutineName().ID().ToString() ?? 
                 throw new NullReferenceException("Subroutine Name Null");
             var modifier = context.subroutineDecModifier();
+            var type = subroutineSymbolTable.Get($"class {JackDefinitions.JackAssemblyName}.{className}", subroutineName).ReturnType;
             string modifierString;
             if (modifier is ConstructorContext)
             {
@@ -109,7 +110,8 @@ namespace JackInterpreter
             {
                 throw new NotImplementedException(modifier.GetText());
             }
-            writer.WriteLine($".method public {modifierString} void {subroutineName}(");
+            
+            writer.WriteLine($".method public {modifierString} {type} {subroutineName}(");
             subroutineNames.Push( subroutineName );
         }
 
@@ -567,13 +569,17 @@ namespace JackInterpreter
             }
             else
             {
-                if (!dataSymbolTable.KindOf(lhs).Equals(SymbolKind.NONE))
+                if (!dataSymbolTable.KindOf(lhs).Equals(SymbolKind.NONE)) // field
                 {
                     var type = dataSymbolTable.TypeOf(lhs);
                     var subroutineEntry = subroutineSymbolTable.Get(type, rhs);
+                    if (type.StartsWith("class "))
+                    {
+                        type = type.Substring("class ".Length);
+                    }
                     writer.WriteLine(subroutineEntry.GenerateInstanceInvocationIL(type));
                 }
-                else
+                else // static class function
                 {
                     var subroutineEntry = subroutineSymbolTable.Get($"class {JackDefinitions.JackAssemblyName}.{lhs}", rhs);
                     writer.WriteLine(subroutineEntry.GenerateInstanceInvocationIL($"{JackDefinitions.JackAssemblyName}.{lhs}"));
@@ -683,7 +689,7 @@ namespace JackInterpreter
                     writer.WriteLine("mul.ovf");
                     break;
                 case "/":
-                    writer.WriteLine("div.ovf");
+                    writer.WriteLine("div");
                     break;
                 case "&":
                     writer.WriteLine("and");

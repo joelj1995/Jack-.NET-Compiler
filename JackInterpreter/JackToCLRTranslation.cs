@@ -12,6 +12,7 @@ namespace JackInterpreter
         public static string GetFieldTypeString(TypeContext fieldType)
         {
             string fieldTypeString;
+            if (fieldType is null) return "void";
             if (fieldType is TypeIntContext)
             {
                 fieldTypeString = "int16";
