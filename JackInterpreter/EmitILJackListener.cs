@@ -320,6 +320,10 @@ namespace JackInterpreter
             {
                 writer.WriteLine("call class [NJackOS.Interface]NJackOS.Interface.IJackMemory [NJackOS.Interface]NJackOS.Interface.JackOSProvider::get_Memory()");
             }
+            else if (lhs.Equals("Sys"))
+            {
+                writer.WriteLine("call class [NJackOS.Interface]NJackOS.Interface.IJackSys [NJackOS.Interface]NJackOS.Interface.JackOSProvider::get_Sys()");
+            }
             else
             {
                 if (!dataSymbolTable.KindOf(lhs).Equals(SymbolKind.NONE))
@@ -493,6 +497,23 @@ namespace JackInterpreter
                         break;
                     case "deAlloc":
                         writer.WriteLine("callvirt instance int16 [NJackOS.Interface]NJackOS.Interface.IJackMemory::deAlloc(class [NJackOS.Interface]NJackOS.Interface.JackArrayClass)");
+                        break;
+                    default:
+                        throw new NotImplementedException(rhs);
+                }
+            }
+            else if (lhs.Equals("Sys"))
+            {
+                switch (rhs)
+                {
+                    case "halt":
+                        writer.WriteLine("callvirt instance int16 [NJackOS.Interface]NJackOS.Interface.IJackSys::halt()");
+                        break;
+                    case "error":
+                        writer.WriteLine("callvirt instance int16 [NJackOS.Interface]NJackOS.Interface.IJackSys::error(int16)");
+                        break;
+                    case "wait":
+                        writer.WriteLine("callvirt instance int16 [NJackOS.Interface]NJackOS.Interface.IJackSys::wait(int16)");
                         break;
                     default:
                         throw new NotImplementedException(rhs);

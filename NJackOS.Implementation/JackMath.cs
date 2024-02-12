@@ -9,6 +9,11 @@ namespace NJackOS.Implementation
 {
     internal class JackMath : IJackMath
     {
+        public JackMath()
+        {
+            Console.WriteLine("Jack Math initialized.");
+        }
+
         public short abs(short x)
         {
             return Math.Abs(x);

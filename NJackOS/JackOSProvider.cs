@@ -94,6 +94,18 @@ namespace NJackOS.Interface
             }
         }
 
+        public static IJackSys Sys
+        {
+            get
+            {
+                if (jackSys != null) return jackSys;
+
+                jackSys = GetProvider<IJackSys>();
+
+                return jackSys;
+            }
+        }
+
         private static T GetProvider<T>()
         {
             /*
@@ -148,6 +160,7 @@ namespace NJackOS.Interface
         private static IJackString jackString;
         private static IJackKeyboard jackKeyboard;
         private static IJackMath jackMath;
+        private static IJackSys jackSys;
         private static bool loaded = false;
         private static CurrentKeyListener currentKeyListener = new CurrentKeyListener();
     }
