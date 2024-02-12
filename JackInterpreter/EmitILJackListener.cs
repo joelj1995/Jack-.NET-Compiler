@@ -312,6 +312,10 @@ namespace JackInterpreter
             {
                 writer.WriteLine("call class [NJackOS.Interface]NJackOS.Interface.IJackKeyboard [NJackOS.Interface]NJackOS.Interface.JackOSProvider::get_Keyboard()");
             }
+            else if (lhs.Equals("Math"))
+            {
+                writer.WriteLine("call class [NJackOS.Interface]NJackOS.Interface.IJackMath [NJackOS.Interface]NJackOS.Interface.JackOSProvider::get_JMath()");
+            }
             else
             {
                 string op;
@@ -439,6 +443,26 @@ namespace JackInterpreter
                         break;
                     case "readInt":
                         writer.WriteLine("callvirt instance int16 [NJackOS.Interface]NJackOS.Interface.IJackKeyboard::readInt(class [NJackOS.Interface]NJackOS.Interface.JackStringClass)");
+                        break;
+                    default:
+                        throw new NotImplementedException(rhs);
+                }
+            }
+            else if (lhs.Equals("math"))
+            {
+                switch (rhs)
+                {
+                    case "abs":
+                        writer.WriteLine("callvirt instance int16 [NJackOS.Interface]NJackOS.Interface.IJackMath::abs(int16)");
+                        break;
+                    case "max":
+                        writer.WriteLine("callvirt instance int16 [NJackOS.Interface]NJackOS.Interface.IJackMath::max(int16,int16)");
+                        break;
+                    case "min":
+                        writer.WriteLine("callvirt instance int16 [NJackOS.Interface]NJackOS.Interface.IJackMath::min(int16,int16)");
+                        break;
+                    case "sqrt":
+                        writer.WriteLine("callvirt instance int16 [NJackOS.Interface]NJackOS.Interface.IJackMath::sqrt(int16)");
                         break;
                     default:
                         throw new NotImplementedException(rhs);
