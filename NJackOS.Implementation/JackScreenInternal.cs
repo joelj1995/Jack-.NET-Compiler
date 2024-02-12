@@ -72,7 +72,7 @@ namespace NJackOS.Implementation
                 {
                     writeableBitmap.Clear(Colors.White);
                 }
-            }));
+            })).Wait();
         }
 
         public void drawCircle(short cx, short cy, short r, bool color)
@@ -83,7 +83,7 @@ namespace NJackOS.Implementation
                 {
                     writeableBitmap.FillEllipseCentered(cx, cy, r, r, color ? Colors.Black : Colors.White);
                 }
-            }));
+            })).Wait();
         }
 
         public void drawPixel(short x, short y, bool color)
@@ -94,7 +94,7 @@ namespace NJackOS.Implementation
                 {
                     writeableBitmap.SetPixel(x, y, color ? Colors.Black : Colors.White);
                 }
-            }));
+            })).Wait();
         }
 
         public void drawLine(short x1, short x2, short y1, short y2, bool color)
@@ -105,7 +105,7 @@ namespace NJackOS.Implementation
                 {
                     writeableBitmap.DrawLine(x1, x2, y1, y2, color ? Colors.Black : Colors.White);
                 }
-            }));
+            })).Wait();
         }
 
         public void drawRectangle(short x1, short y1, short x2, short y2, bool color)
@@ -116,7 +116,7 @@ namespace NJackOS.Implementation
                 {
                     writeableBitmap.FillRectangle(x1, y1, x2, y2, color ? Colors.Black : Colors.White);
                 }
-            }));
+            })).Wait();
         }
 
         public void Subscribe(ICurrentKeyObserver observer)
