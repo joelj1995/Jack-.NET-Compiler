@@ -56,7 +56,7 @@ namespace JackInterpreter
                 args.Add(typeString);
             }
             var returnType = context.type()?.GetText() ?? "void";
-            subroutineSymbolTable.Define(className, subroutineName, subroutineKind, args.ToArray(), false, returnType);
+            subroutineSymbolTable.Define($"class {JackDefinitions.JackAssemblyName}.{className}", subroutineName, subroutineKind, args.ToArray(), false, returnType);
         }
 
         private readonly SubroutineSymbolTable subroutineSymbolTable;

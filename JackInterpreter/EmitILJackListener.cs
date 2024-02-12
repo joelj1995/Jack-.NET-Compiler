@@ -316,25 +316,35 @@ namespace JackInterpreter
             {
                 writer.WriteLine("call class [NJackOS.Interface]NJackOS.Interface.IJackMath [NJackOS.Interface]NJackOS.Interface.JackOSProvider::get_JMath()");
             }
+            else if (lhs.Equals("Memory"))
+            {
+                writer.WriteLine("call class [NJackOS.Interface]NJackOS.Interface.IJackMemory [NJackOS.Interface]NJackOS.Interface.JackOSProvider::get_Memory()");
+            }
             else
             {
-                string op;
-                var index = dataSymbolTable.IndexOf(lhs);
-                switch (dataSymbolTable.KindOf(lhs))
+                if (!dataSymbolTable.KindOf(lhs).Equals(SymbolKind.NONE))
                 {
-                    case SymbolKind.ARG:
-                        op = "ldarg";
-                        writer.WriteLine($"{op}.{index}");
-                        break;
-                    case SymbolKind.VAR:
-                        op = "ldloc.s";
-                        writer.WriteLine($"{op} {index}");
-                        break;
-                    case SymbolKind.FIELD:
-                        writer.WriteLine($"ldfld {dataSymbolTable.TypeOf(lhs)} {JackDefinitions.JackAssemblyName}.{className}::{lhs}");
-                        break;
-                    default:
-                        throw new NotImplementedException();
+                    string op;
+                    var index = dataSymbolTable.IndexOf(lhs);
+                    switch (dataSymbolTable.KindOf(lhs))
+                    {
+                        case SymbolKind.ARG:
+                            op = "ldarg";
+                            writer.WriteLine($"{op}.{index}");
+                            break;
+                        case SymbolKind.VAR:
+                            op = "ldloc.s";
+                            writer.WriteLine($"{op} {index}");
+                            break;
+                        case SymbolKind.FIELD:
+                            writer.WriteLine($"ldfld {dataSymbolTable.TypeOf(lhs)} {JackDefinitions.JackAssemblyName}.{className}::{lhs}");
+                            break;
+                        default:
+                            throw new NotImplementedException();
+                    }
+                }
+                else
+                {
                 }
             }
         }
@@ -448,7 +458,7 @@ namespace JackInterpreter
                         throw new NotImplementedException(rhs);
                 }
             }
-            else if (lhs.Equals("math"))
+            else if (lhs.Equals("Math"))
             {
                 switch (rhs)
                 {
@@ -468,11 +478,39 @@ namespace JackInterpreter
                         throw new NotImplementedException(rhs);
                 }
             }
+            else if (lhs.Equals("Memory"))
+            {
+                switch (rhs)
+                {
+                    case "peek":
+                        writer.WriteLine("callvirt instance int16 [NJackOS.Interface]NJackOS.Interface.IJackMemory::peek(int16)");
+                        break;
+                    case "poke":
+                        writer.WriteLine("callvirt instance int16 [NJackOS.Interface]NJackOS.Interface.IJackMemory::poke(int16,int16)");
+                        break;
+                    case "alloc":
+                        writer.WriteLine("callvirt instance int16 [NJackOS.Interface]NJackOS.Interface.IJackMemory::alloc(int16)");
+                        break;
+                    case "deAlloc":
+                        writer.WriteLine("callvirt instance int16 [NJackOS.Interface]NJackOS.Interface.IJackMemory::deAlloc(class [NJackOS.Interface]NJackOS.Interface.JackArrayClass)");
+                        break;
+                    default:
+                        throw new NotImplementedException(rhs);
+                }
+            }
             else
             {
-                var type = dataSymbolTable.TypeOf(lhs);
-                var subroutineEntry = subroutineSymbolTable.Get(type, rhs);
-                writer.WriteLine(subroutineEntry.GenerateInstanceInvocationIL(type));
+                if (!dataSymbolTable.KindOf(lhs).Equals(SymbolKind.NONE))
+                {
+                    var type = dataSymbolTable.TypeOf(lhs);
+                    var subroutineEntry = subroutineSymbolTable.Get(type, rhs);
+                    writer.WriteLine(subroutineEntry.GenerateInstanceInvocationIL(type));
+                }
+                else
+                {
+                    var subroutineEntry = subroutineSymbolTable.Get($"class {JackDefinitions.JackAssemblyName}.{lhs}", rhs);
+                    writer.WriteLine(subroutineEntry.GenerateInstanceInvocationIL(lhs));
+                }
             }
         }
 
@@ -609,15 +647,13 @@ namespace JackInterpreter
             writer.WriteLine("callvirt instance int16 [NJackOS.Interface]NJackOS.Interface.JackObject::get_Item(int16)");
         }
 
-        
-
-
         private readonly IndentedTextWriter writer;
         private readonly SubroutineSymbolTable subroutineSymbolTable;
 
         private int ifCookie = 0;
         private Stack<int> intCookieStack = new();
         private Stack<string> subroutineNames = new Stack<string>();
+        private Stack<string> staticClassForMethodInvocation = new Stack<string>();
 
         private readonly record struct TableEntry(string name, string type, int index);
         private DataSymbolTable dataSymbolTable = new DataSymbolTable();
