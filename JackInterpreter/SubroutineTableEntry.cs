@@ -46,6 +46,10 @@ namespace JackInterpreter
             {
                 callOp = "callvirt";
             }
+            if (Kind.Equals(SubroutineKind.METHOD))
+            {
+                callOp += " instance";
+            }
             var name = Name;
             var returnType = ReturnType;
             if (Name.Equals("new"))
@@ -54,7 +58,7 @@ namespace JackInterpreter
                 name = ".ctor";
                 returnType = "void";
             }
-            return $"{callOp} instance {returnType} {parentClass}::{name}({String.Join(',', ArgumentTypes)})";
+            return $"{callOp} {returnType} {parentClass}::{name}({String.Join(',', ArgumentTypes)})";
         }
     }
 }

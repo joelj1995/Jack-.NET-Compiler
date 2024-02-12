@@ -95,6 +95,7 @@ namespace JackInterpreter
             {
                 modifierString = "specialname rtspecialname instance";
                 subroutineName = ".ctor";
+                type = "void";
                 inMethod = true;
             }
             else if (modifier is FunctionContext)
