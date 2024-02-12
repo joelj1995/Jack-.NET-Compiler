@@ -569,6 +569,18 @@ namespace JackInterpreter
             }
         }
 
+        public override void EnterThisMethod([NotNull] ThisMethodContext context)
+        {
+            writer.WriteLine("ldarg.0");
+        }
+
+        public override void ExitThisMethod([NotNull] ThisMethodContext context)
+        {
+            var subroutineName = context.subroutineName()?.ID().ToString() ?? throw new NullReferenceException("rhs");
+            var subroutineEntry = subroutineSymbolTable.Get($"class {JackDefinitions.JackAssemblyName}.{className}", subroutineName);
+            writer.WriteLine(subroutineEntry.GenerateInstanceInvocationIL($"{JackDefinitions.JackAssemblyName}.{className}"));
+        }
+
         public override void EnterConstFalse([NotNull] ConstFalseContext context)
         {
             writer.WriteLine("ldc.i4 0");
