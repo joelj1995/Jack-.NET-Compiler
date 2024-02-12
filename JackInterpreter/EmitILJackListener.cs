@@ -581,6 +581,19 @@ namespace JackInterpreter
             writer.WriteLine($"ldc.i4 {value}");
         }
 
+        public override void EnterConstThis([NotNull] ConstThisContext context)
+        {
+            if (inMethod)
+                writer.WriteLine("ldarg.0");
+            else
+                throw new InvalidOperationException(context.GetText());
+        }
+
+        public override void EnterConstNull([NotNull] ConstNullContext context)
+        {
+            writer.WriteLine("ldnull");
+        }
+
         public override void EnterConstString([NotNull] ConstStringContext context)
         {
             writer.WriteLine("call class [NJackOS.Interface]NJackOS.Interface.IJackString [NJackOS.Interface]NJackOS.Interface.JackOSProvider::get_String()");
