@@ -371,6 +371,10 @@ namespace JackInterpreter
                             writer.WriteLine($"{op} {index}");
                             break;
                         case SymbolKind.FIELD:
+                            if (inMethod)
+                                writer.WriteLine("ldarg.0");
+                            else
+                                throw new InvalidOperationException(context.GetText());
                             writer.WriteLine($"ldfld {dataSymbolTable.TypeOf(lhs)} {JackDefinitions.JackAssemblyName}.{className}::{lhs}");
                             break;
                         default:
@@ -618,6 +622,10 @@ namespace JackInterpreter
                     writer.WriteLine($"{op} {index}");
                     break;
                 case SymbolKind.FIELD:
+                    if (inMethod)
+                        writer.WriteLine("ldarg.0");
+                    else
+                        throw new InvalidOperationException(context.GetText());
                     writer.WriteLine($"ldfld {dataSymbolTable.TypeOf(varName)} {JackDefinitions.JackAssemblyName}.{className}::{varName}");
                     return;
                 default:
@@ -698,6 +706,10 @@ namespace JackInterpreter
                     writer.WriteLine($"{op} {index}");
                     break;
                 case SymbolKind.FIELD:
+                    if (inMethod)
+                        writer.WriteLine("ldarg.0");
+                    else
+                        throw new InvalidOperationException(context.GetText());
                     writer.WriteLine($"ldfld {dataSymbolTable.TypeOf(varName)} {JackDefinitions.JackAssemblyName}.{className}::{varName}");
                     break;
                 default:
