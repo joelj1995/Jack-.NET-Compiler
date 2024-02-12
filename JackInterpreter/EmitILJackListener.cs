@@ -541,13 +541,13 @@ namespace JackInterpreter
                 switch (rhs)
                 {
                     case "halt":
-                        writer.WriteLine("callvirt instance int16 [NJackOS.Interface]NJackOS.Interface.IJackSys::halt()");
+                        writer.WriteLine("callvirt instance void [NJackOS.Interface]NJackOS.Interface.IJackSys::halt()");
                         break;
                     case "error":
-                        writer.WriteLine("callvirt instance int16 [NJackOS.Interface]NJackOS.Interface.IJackSys::error(int16)");
+                        writer.WriteLine("callvirt instance void [NJackOS.Interface]NJackOS.Interface.IJackSys::error(int16)");
                         break;
                     case "wait":
-                        writer.WriteLine("callvirt instance int16 [NJackOS.Interface]NJackOS.Interface.IJackSys::wait(int16)");
+                        writer.WriteLine("callvirt instance void [NJackOS.Interface]NJackOS.Interface.IJackSys::wait(int16)");
                         break;
                     default:
                         throw new NotImplementedException(rhs);
