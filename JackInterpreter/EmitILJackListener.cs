@@ -99,6 +99,7 @@ namespace JackInterpreter
             else if (modifier is MethodContext)
             {
                 modifierString = "instance";
+                inMethod = true;
             }
             else
             {
@@ -138,6 +139,11 @@ namespace JackInterpreter
             writer.Indent++;
             if (subroutineNames.Peek().Equals("main"))
                 writer.WriteLine($".entrypoint");
+            else if (subroutineNames.Peek().Equals(".ctor"))
+            {
+                writer.WriteLine("ldarg.0");
+                writer.WriteLine("call instance void [mscorlib]System.Object::.ctor()");
+            }
             writer.WriteLine($".maxstack 256");
             writer.WriteLine(".locals init(");
             writer.Indent++;
@@ -167,6 +173,7 @@ namespace JackInterpreter
 
         public override void ExitSubroutineBody([NotNull] SubroutineBodyContext context)
         {
+            inMethod = false;
             writer.WriteLine("ret");
             writer.Indent--;
             writer.WriteLine("}");
@@ -254,7 +261,6 @@ namespace JackInterpreter
                         throw new NotImplementedException();
                 }
                 writer.WriteLine("callvirt instance class [NJackOS.Interface]NJackOS.Interface.JackArrayClass [NJackOS.Interface]NJackOS.Interface.IJackArray::FromCLRShort(int16)");
-                
             }
         }
 
@@ -674,10 +680,10 @@ namespace JackInterpreter
         private int ifCookie = 0;
         private Stack<int> intCookieStack = new();
         private Stack<string> subroutineNames = new Stack<string>();
-        private Stack<string> staticClassForMethodInvocation = new Stack<string>();
 
         private readonly record struct TableEntry(string name, string type, int index);
         private DataSymbolTable dataSymbolTable = new DataSymbolTable();
         private string className;
+        private bool inMethod;
     }
 }
