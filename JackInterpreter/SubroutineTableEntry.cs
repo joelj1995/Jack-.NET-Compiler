@@ -46,7 +46,15 @@ namespace JackInterpreter
             {
                 callOp = "callvirt";
             }
-            return $"{callOp} instance {ReturnType} {parentClass}::{Name}({String.Join(',', ArgumentTypes)})";
+            var name = Name;
+            var returnType = ReturnType;
+            if (Name.Equals("new"))
+            {
+                callOp = "newobj";
+                name = ".ctor";
+                returnType = "void";
+            }
+            return $"{callOp} instance {returnType} {parentClass}::{name}({String.Join(',', ArgumentTypes)})";
         }
     }
 }

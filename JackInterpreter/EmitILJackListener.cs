@@ -530,7 +530,7 @@ namespace JackInterpreter
                 else
                 {
                     var subroutineEntry = subroutineSymbolTable.Get($"class {JackDefinitions.JackAssemblyName}.{lhs}", rhs);
-                    writer.WriteLine(subroutineEntry.GenerateInstanceInvocationIL(lhs));
+                    writer.WriteLine(subroutineEntry.GenerateInstanceInvocationIL($"{JackDefinitions.JackAssemblyName}.{lhs}"));
                 }
             }
         }
