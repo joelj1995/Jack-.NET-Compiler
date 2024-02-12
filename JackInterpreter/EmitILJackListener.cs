@@ -91,6 +91,7 @@ namespace JackInterpreter
             {
                 modifierString = "specialname rtspecialname instance";
                 subroutineName = ".ctor";
+                inMethod = true;
             }
             else if (modifier is FunctionContext)
             {
@@ -240,27 +241,50 @@ namespace JackInterpreter
             writer.WriteLine("// " + context.GetText());
             var varName = context.varName().ID().ToString() ?? throw new NullReferenceException();
             var index = dataSymbolTable.IndexOf(varName);
+            var symbolKind = dataSymbolTable.KindOf(varName);
             if (context.letStatementArrayIndex() is not null)
             {
                 writer.WriteLine("call class [NJackOS.Interface]NJackOS.Interface.IJackArray [NJackOS.Interface]NJackOS.Interface.JackOSProvider::get_Array()");
                 string op;
-                switch (dataSymbolTable.KindOf(varName))
+                switch (symbolKind)
                 {
                     case SymbolKind.ARG:
                         op = "ldarg";
-                        writer.WriteLine($"{op}.{index}");
+                        writer.WriteLine($"{op}.{index + (inMethod ? 1 : 0)}");
                         break;
                     case SymbolKind.VAR:
                         op = "ldloc.s";
                         writer.WriteLine($"{op} {index}");
                         break;
                     case SymbolKind.FIELD:
+                        if (inMethod)
+                        {
+                            writer.WriteLine("ldarg.0");
+                        }
+                        else
+                        {
+                            throw new InvalidOperationException(context.GetText());
+                        }
                         writer.WriteLine($"ldfld {dataSymbolTable.TypeOf(varName)} {JackDefinitions.JackAssemblyName}.{className}::{varName}");
                         break;
                     default:
-                        throw new NotImplementedException();
+                        throw new NotImplementedException(context.GetText());
                 }
                 writer.WriteLine("callvirt instance class [NJackOS.Interface]NJackOS.Interface.JackArrayClass [NJackOS.Interface]NJackOS.Interface.IJackArray::FromCLRShort(int16)");
+            }
+            else
+            {
+                if (symbolKind == SymbolKind.FIELD)
+                {
+                    if (inMethod)
+                    {
+                        writer.WriteLine("ldarg.0");
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException(context.GetText());
+                    }
+                }
             }
         }
 
@@ -340,7 +364,7 @@ namespace JackInterpreter
                     {
                         case SymbolKind.ARG:
                             op = "ldarg";
-                            writer.WriteLine($"{op}.{index}");
+                            writer.WriteLine($"{op}.{index + (inMethod ? 1 : 0)}");
                             break;
                         case SymbolKind.VAR:
                             op = "ldloc.s";
@@ -574,7 +598,7 @@ namespace JackInterpreter
             {
                 case SymbolKind.ARG:
                     op = "ldarg";
-                    writer.WriteLine($"{op}.{index}");
+                    writer.WriteLine($"{op}.{index + (inMethod ? 1 : 0)}");
                     break;
                 case SymbolKind.VAR:
                     op = "ldloc.s";
@@ -654,7 +678,7 @@ namespace JackInterpreter
             {
                 case SymbolKind.ARG:
                     op = "ldarg";
-                    writer.WriteLine($"{op}.{index}");
+                    writer.WriteLine($"{op}.{index + (inMethod ? 1 : 0)}");
                     break;
                 case SymbolKind.VAR:
                     op = "ldloc.s";
