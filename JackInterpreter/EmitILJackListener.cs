@@ -59,12 +59,15 @@ namespace JackInterpreter
         public override void EnterClassVarDec([NotNull] ClassVarDecContext context)
         {
             var modifier = context.classVarDecModifier().GetText();
+            var symbolKind = SymbolKind.FIELD;
             switch (modifier)
             {
                 case "field":
                     modifier = "";
                     break;
                 case "static":
+                    modifier = "static";
+                    symbolKind = SymbolKind.STATIC;
                     break;
                 default:
                     throw new NotImplementedException(modifier);
@@ -76,7 +79,7 @@ namespace JackInterpreter
             foreach (var field in context.varName())
             {
                 writer.WriteLine($".field private {modifier} {fieldTypeString} {field.ID()}");
-                dataSymbolTable.Define(field.ID().ToString() ?? throw new NullReferenceException(), fieldTypeString, SymbolKind.FIELD);
+                dataSymbolTable.Define(field.ID().ToString() ?? throw new NullReferenceException(), fieldTypeString, symbolKind);
             }
         }
 
@@ -250,11 +253,14 @@ namespace JackInterpreter
                 {
                     case SymbolKind.ARG:
                         op = "ldarg";
-                        writer.WriteLine($"{op}.{index + (inMethod ? 1 : 0)}");
+                        writer.WriteLine($"{op} {index + (inMethod ? 1 : 0)}");
                         break;
                     case SymbolKind.VAR:
                         op = "ldloc.s";
                         writer.WriteLine($"{op} {index}");
+                        break;
+                    case SymbolKind.STATIC:
+                        writer.WriteLine($"ldsfld {dataSymbolTable.TypeOf(varName)} {JackDefinitions.JackAssemblyName}.{className}::{varName}");
                         break;
                     case SymbolKind.FIELD:
                         if (inMethod)
@@ -307,6 +313,9 @@ namespace JackInterpreter
                     return;
                 case SymbolKind.VAR:
                     writer.WriteLine($"stloc {index}");
+                    return;
+                case SymbolKind.STATIC:
+                    writer.WriteLine($"stsfld {dataSymbolTable.TypeOf(varName)} {JackDefinitions.JackAssemblyName}.{className}::{varName}");
                     return;
                 case SymbolKind.FIELD:
                     writer.WriteLine($"stfld {dataSymbolTable.TypeOf(varName)} {JackDefinitions.JackAssemblyName}.{className}::{varName}");
@@ -364,11 +373,14 @@ namespace JackInterpreter
                     {
                         case SymbolKind.ARG:
                             op = "ldarg";
-                            writer.WriteLine($"{op}.{index + (inMethod ? 1 : 0)}");
+                            writer.WriteLine($"{op} {index + (inMethod ? 1 : 0)}");
                             break;
                         case SymbolKind.VAR:
                             op = "ldloc.s";
                             writer.WriteLine($"{op} {index}");
+                            break;
+                        case SymbolKind.STATIC:
+                            writer.WriteLine($"ldsfld {dataSymbolTable.TypeOf(lhs)} {JackDefinitions.JackAssemblyName}.{className}::{lhs}");
                             break;
                         case SymbolKind.FIELD:
                             if (inMethod)
@@ -634,11 +646,14 @@ namespace JackInterpreter
             {
                 case SymbolKind.ARG:
                     op = "ldarg";
-                    writer.WriteLine($"{op}.{index + (inMethod ? 1 : 0)}");
+                    writer.WriteLine($"{op} {index + (inMethod ? 1 : 0)}");
                     break;
                 case SymbolKind.VAR:
                     op = "ldloc.s";
                     writer.WriteLine($"{op} {index}");
+                    break;
+                case SymbolKind.STATIC:
+                    writer.WriteLine($"ldsfld {dataSymbolTable.TypeOf(varName)} {JackDefinitions.JackAssemblyName}.{className}::{varName}");
                     break;
                 case SymbolKind.FIELD:
                     if (inMethod)
@@ -718,11 +733,14 @@ namespace JackInterpreter
             {
                 case SymbolKind.ARG:
                     op = "ldarg";
-                    writer.WriteLine($"{op}.{index + (inMethod ? 1 : 0)}");
+                    writer.WriteLine($"{op} {index + (inMethod ? 1 : 0)}");
                     break;
                 case SymbolKind.VAR:
                     op = "ldloc.s";
                     writer.WriteLine($"{op} {index}");
+                    break;
+                case SymbolKind.STATIC:
+                    writer.WriteLine($"ldsfld {dataSymbolTable.TypeOf(varName)} {JackDefinitions.JackAssemblyName}.{className}::{varName}");
                     break;
                 case SymbolKind.FIELD:
                     if (inMethod)
