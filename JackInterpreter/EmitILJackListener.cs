@@ -600,7 +600,14 @@ namespace JackInterpreter
         public override void EnterConstThis([NotNull] ConstThisContext context)
         {
             if (inMethod)
-                writer.WriteLine("ldarg.0");
+            {
+                /*
+                 * Suppress this if we're returning from a constructor.
+                 * This 3x .Parent access is truly terrible.
+                 */
+                if (!(this.subroutineNames.Peek().Equals(".ctor") && context.Parent.Parent.Parent is ReturnStatementContext))
+                    writer.WriteLine("ldarg.0");
+            }
             else
                 throw new InvalidOperationException(context.GetText());
         }
